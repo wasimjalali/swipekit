@@ -6,16 +6,16 @@ function buildFluxPrompt(visual_theme: string, template: string, accent_color: s
   const styleMap: Record<string, string> = {
     'karko-navy':
       'Dominant palette of deep midnight navy and ink-black tones with molten gold accent light bleeding through layered translucent surfaces. ' +
-      'Volumetric backlighting casting warm amber god rays through atmospheric haze. ' +
+      'Volumetric backlighting casting warm amber god rays through atmospheric haze, evoking upward momentum and professional ambition. ' +
       'Rich dimensional depth with tightly detailed foreground textures dissolving into dark void. ' +
       'Surfaces of brushed metal, dark silk fabric folds, and liquid mercury reflections. ' +
-      'Cinematic chiaroscuro lighting, premium editorial luxury aesthetic, painterly impasto micro-detail.',
+      'Cinematic chiaroscuro lighting, premium career editorial aesthetic, painterly impasto micro-detail.',
     'karko-cream':
       'Dominant palette of warm ivory cream and soft champagne tones with golden hour light suffusing through layered translucent mist. ' +
-      'Volumetric soft-box lighting with warm subsurface scattering through organic flowing shapes. ' +
+      'Volumetric soft-box lighting with warm subsurface scattering through organic flowing shapes, conveying clarity and confident transformation. ' +
       'Rich textural depth from layered watercolor washes, marble veining, and draped silk fabric folds. ' +
       'Foreground detail of intricate organic patterns dissolving into luminous open space. ' +
-      'Soft bokeh highlights, iridescent pearl sheen on surfaces, elegant editorial photography aesthetic, ultra-detailed.',
+      'Soft bokeh highlights, iridescent pearl sheen on surfaces, aspirational editorial photography aesthetic, ultra-detailed.',
   };
 
   return [

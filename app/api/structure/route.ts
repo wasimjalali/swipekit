@@ -61,7 +61,9 @@ Each slide needs a "visual_theme" for AI background generation via FLUX image mo
 Write 30-50 words of flowing natural language (NOT comma-separated tags).
 Requirements:
 - Abstract, atmospheric, textural — NEVER literal objects, people, or text
-- Match the emotional tone of that slide's message
+- Match the emotional tone of that slide's message. This is a career/job-seeker brand —
+  visual tones should evoke ambition, momentum, confidence, transformation, and professional aspiration.
+  Think editorial career magazine, not corporate clip art.
 - MUST include: (1) a specific abstract form (fluid simulation, crystalline fractals, nebula clouds,
   smoke tendrils, ink diffusion, fabric folds, geological strata, etc.), (2) explicit lighting type
   (volumetric backlighting, rim lighting, god rays, subsurface scattering, etc.),
