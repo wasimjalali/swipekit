@@ -57,14 +57,22 @@ SLIDE COUNT:
 - If the user provides "Slide 1" through "Slide 5", output 5 slides
 
 VISUAL THEME DIRECTION:
-Each slide needs a "visual_theme" for AI background generation. Requirements:
-- Abstract, atmospheric, textural — NEVER literal objects or text
+Each slide needs a "visual_theme" for AI background generation via FLUX image model.
+Write 30-50 words of flowing natural language (NOT comma-separated tags).
+Requirements:
+- Abstract, atmospheric, textural — NEVER literal objects, people, or text
 - Match the emotional tone of that slide's message
-- CRITICAL: NEVER include any words, letters, numbers, brand names, URLs, hex codes,
-  or any readable text in the visual_theme description. The image generator will render
-  text literally if you include it.
-- Bad example: "Navy #0F1B3D background with Karko branding" (includes hex code + brand name!)
-- Good example: "Deep midnight blue atmosphere with warm golden light particles, editorial luxury"
+- MUST include: (1) a specific abstract form (fluid simulation, crystalline fractals, nebula clouds,
+  smoke tendrils, ink diffusion, fabric folds, geological strata, etc.), (2) explicit lighting type
+  (volumetric backlighting, rim lighting, god rays, subsurface scattering, etc.),
+  (3) textural detail (layered translucency, granular noise, iridescent sheen, impasto surface, etc.),
+  (4) depth cue (foreground detail dissolving into void, layered planes, atmospheric perspective, etc.)
+- NEVER include any words, letters, numbers, brand names, URLs, hex codes, or readable text.
+  The image model renders text literally.
+- Bad example: "Navy #0F1B3D background with Karko branding"
+- Good example: "Fluid simulation of liquid ink diffusing through water, volumetric backlighting
+  casting prismatic refractions through translucent layers, intricate micro-surface texture at
+  every scale, foreground detail dissolving into deep atmospheric void"
 
 ACCENT COLOR:
 - For "karko-navy" template: use #C8A44E (Karko Gold) as accent_color for ALL slides

@@ -4,17 +4,24 @@ export const maxDuration = 60;
 
 function buildFluxPrompt(visual_theme: string, template: string, accent_color: string): string {
   const styleMap: Record<string, string> = {
-    'karko-navy':  'Deep navy and dark blue tones, rich shadows, warm gold accent lighting, premium luxury feel, moody atmospheric depth',
-    'karko-cream': 'Warm cream and champagne tones with rich textural depth, soft golden light rays, subtle marble and silk fabric textures, watercolor washes, organic flowing shapes, warm shadows and highlights, elegant editorial feel with visual richness and dimension',
+    'karko-navy':
+      'Dominant palette of deep midnight navy and ink-black tones with molten gold accent light bleeding through layered translucent surfaces. ' +
+      'Volumetric backlighting casting warm amber god rays through atmospheric haze. ' +
+      'Rich dimensional depth with tightly detailed foreground textures dissolving into dark void. ' +
+      'Surfaces of brushed metal, dark silk fabric folds, and liquid mercury reflections. ' +
+      'Cinematic chiaroscuro lighting, premium editorial luxury aesthetic, painterly impasto micro-detail.',
+    'karko-cream':
+      'Dominant palette of warm ivory cream and soft champagne tones with golden hour light suffusing through layered translucent mist. ' +
+      'Volumetric soft-box lighting with warm subsurface scattering through organic flowing shapes. ' +
+      'Rich textural depth from layered watercolor washes, marble veining, and draped silk fabric folds. ' +
+      'Foreground detail of intricate organic patterns dissolving into luminous open space. ' +
+      'Soft bokeh highlights, iridescent pearl sheen on surfaces, elegant editorial photography aesthetic, ultra-detailed.',
   };
 
   return [
     visual_theme,
     styleMap[template] ?? styleMap['karko-navy'],
-    'Abstract background texture only.',
-    'ABSOLUTELY NO TEXT, NO WORDS, NO LETTERS, NO NUMBERS, NO LOGOS, NO WATERMARKS, NO WRITING OF ANY KIND.',
-    'Zero legible characters. Pure abstract visual. No typography.',
-    'Professional editorial graphic design aesthetic, high quality, clean.',
+    'Pure abstract visual composition devoid of any figures, symbols, letters, or legible elements.',
   ].join('. ');
 }
 
@@ -43,6 +50,9 @@ export async function POST(req: NextRequest) {
         width: imgWidth,
         height: imgHeight,
         n: 1,
+        prompt_upsampling: true,
+        guidance: 3.5,
+        steps: 30,
       }),
     });
 
