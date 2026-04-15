@@ -26,10 +26,24 @@ export interface CarouselConfig {
 /* ── Platform Dimensions ── */
 
 export const PLATFORM_DIMS: Record<string, { w: number; h: number; label: string }> = {
-  instagram: { w: 1080, h: 1080, label: '1:1 Square' },     // Square works best on both platforms
-  linkedin:  { w: 1080, h: 1080, label: '1:1 Square' },     // LinkedIn doc carousel
-  both:      { w: 1080, h: 1080, label: '1:1 Square' },     // Consistent across platforms
+  instagram: { w: 1080, h: 1440, label: '3:4 Portrait' },   // 2026 Instagram standard
+  linkedin:  { w: 1080, h: 1080, label: '1:1 Square' },     // LinkedIn doc carousel (PDF)
+  both:      { w: 1080, h: 1440, label: '3:4 Portrait' },   // Preview uses Instagram size; exports both
 };
+
+/* ── Safe Zones (per-platform content padding) ── */
+
+export interface SafeZone { top: number; right: number; bottom: number; left: number }
+
+export const SAFE_ZONES: Record<string, SafeZone> = {
+  instagram: { top: 50,  right: 120, bottom: 180, left: 120 },
+  linkedin:  { top: 80,  right: 80,  bottom: 80,  left: 80  },
+  both:      { top: 50,  right: 120, bottom: 180, left: 120 },  // Preview uses IG zones
+};
+
+/* ── LinkedIn-specific dimensions for dual export ── */
+
+export const LINKEDIN_DIMS = { w: 1080, h: 1080 } as const;
 
 /* ── Karko AI Brand Palette ── */
 

@@ -38,7 +38,11 @@ function loadSession(): { step: Step; carousel: CarouselConfig | null; content: 
   }
 }
 
-const SLIDE_SCALE = 0.28;
+const SLIDE_SCALE: Record<string, number> = {
+  instagram: 0.21,  // 1080×1440 → ~227×302 preview
+  linkedin:  0.28,  // 1080×1080 → ~302×302 preview
+  both:      0.21,  // Preview uses Instagram (tallest)
+};
 
 function DashboardLogo() {
   const svg = KARKO_LOGO_LIGHT;
@@ -365,9 +369,9 @@ export default function Home() {
                       outline: 'none',
                     }}
                   >
-                    <option value="instagram">Instagram</option>
-                    <option value="linkedin">LinkedIn</option>
-                    <option value="both">Both</option>
+                    <option value="instagram">Instagram (1080×1440)</option>
+                    <option value="linkedin">LinkedIn PDF (1080×1080)</option>
+                    <option value="both">Both Platforms</option>
                   </select>
                 </div>
               </div>
@@ -517,7 +521,13 @@ export default function Home() {
                       opacity: exporting ? 0.6 : 1,
                     }}
                   >
-                    {exporting ? 'Exporting...' : 'Export All (ZIP)'}
+                    {exporting
+                      ? 'Exporting...'
+                      : carousel.platform === 'linkedin'
+                        ? 'Export as PDF'
+                        : carousel.platform === 'both'
+                          ? 'Export Both'
+                          : 'Export as Images'}
                   </button>
                 </div>
               </div>
@@ -526,6 +536,7 @@ export default function Home() {
             <div style={{ display: 'flex', gap: 16, overflowX: 'auto', paddingBottom: 16 }}>
               {carousel.slides.map(slide => {
                 const dims = PLATFORM_DIMS[carousel.platform] || PLATFORM_DIMS.instagram;
+                const previewScale = SLIDE_SCALE[carousel.platform] || SLIDE_SCALE.instagram;
                 return (
                 <div key={slide.id} style={{ flexShrink: 0 }}>
                   <SlidePreview
@@ -533,11 +544,11 @@ export default function Home() {
                     template={carousel.template}
                     platform={carousel.platform}
                     totalSlides={carousel.slides.length}
-                    scale={SLIDE_SCALE}
+                    scale={previewScale}
                   />
                   <div style={{
                     marginTop: 8, display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-                    width: dims.w * SLIDE_SCALE,
+                    width: dims.w * previewScale,
                   }}>
                     <span style={{ fontSize: 12, color: KARKO_BRAND.warmGray }}>Slide {slide.id}</span>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>

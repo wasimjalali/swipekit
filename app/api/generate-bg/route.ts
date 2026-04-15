@@ -26,9 +26,10 @@ export async function POST(req: NextRequest) {
 
     const prompt = buildFluxPrompt(visual_theme, template, accent_color);
 
-    // All platforms use 1:1 square
+    // Platform-specific image dimensions (FLUX supports these sizes)
+    const isPortrait = platform === 'instagram' || platform === 'both';
     const imgWidth = 1024;
-    const imgHeight = 1024;
+    const imgHeight = isPortrait ? 1365 : 1024;  // 3:4 for Instagram, 1:1 for LinkedIn
 
     // AZURE_FOUNDRY_ENDPOINT should be the base URL (e.g. https://slideco-resource.services.ai.azure.com)
     // The full path is appended here

@@ -1,6 +1,6 @@
 'use client';
 
-import { Slide, Template, KARKO_BRAND, KARKO_LOGO_LIGHT, KARKO_LOGO_DARK, PLATFORM_DIMS } from '@/lib/types';
+import { Slide, Template, KARKO_BRAND, KARKO_LOGO_LIGHT, KARKO_LOGO_DARK, PLATFORM_DIMS, SAFE_ZONES } from '@/lib/types';
 
 interface SlidePreviewProps {
   slide: Slide;
@@ -32,10 +32,12 @@ export function SlidePreview({ slide, template, platform, totalSlides, scale = 1
   const colors = textColor[template];
   const accentColor = slide.accent_color || KARKO_BRAND.gold;
   const dims = PLATFORM_DIMS[platform] || PLATFORM_DIMS.instagram;
+  const sz = SAFE_ZONES[platform] || SAFE_ZONES.instagram;
   const W = dims.w;
   const H = dims.h;
   const isLastSlide = slide.id === totalSlides;
   const isCover = slide.type === 'cover';
+  const contentWidth = W - sz.left - sz.right;
 
   return (
     <div style={{ width: W * scale, height: H * scale, position: 'relative', flexShrink: 0 }}>
@@ -76,7 +78,7 @@ export function SlidePreview({ slide, template, platform, totalSlides, scale = 1
         {/* Layer 3a: Logo — pinned at top */}
         <div style={{
           position: 'absolute', zIndex: 10,
-          top: 56, left: 80,
+          top: sz.top + 6, left: sz.left,
         }}>
           <KarkoLogo template={template} />
         </div>
@@ -86,11 +88,11 @@ export function SlidePreview({ slide, template, platform, totalSlides, scale = 1
           data-content-box={`slide-${slide.id}`}
           style={{
             position: 'absolute', zIndex: 10,
-            top: 170, left: 80, right: 80, bottom: 130,
+            top: sz.top + 120, left: sz.left, right: sz.right, bottom: sz.bottom + 50,
             display: 'flex',
             flexDirection: 'column',
             justifyContent: 'center',
-            width: W - 160,
+            width: contentWidth,
           }}
         >
           <div data-content-inner={`slide-${slide.id}`}>
@@ -194,7 +196,7 @@ export function SlidePreview({ slide, template, platform, totalSlides, scale = 1
         {/* Bottom bar area — progress + slide number */}
         <div style={{
           position: 'absolute', bottom: 0, left: 0, right: 0,
-          zIndex: 20, padding: '0 64px 56px',
+          zIndex: 20, padding: `0 ${sz.left}px ${Math.min(sz.bottom, 56)}px`,
         }}>
           {/* Progress bars — inline-block for html2canvas compatibility */}
           <div style={{ marginBottom: 20, whiteSpace: 'nowrap' }}>
@@ -214,7 +216,7 @@ export function SlidePreview({ slide, template, platform, totalSlides, scale = 1
           {/* Footer row */}
           <div style={{ position: 'relative' }}>
             <span style={{
-              fontSize: 20, fontWeight: 600,
+              fontSize: 22, fontWeight: 600,
               color: colors.faint, letterSpacing: '0.05em',
             }}>
               {String(slide.id).padStart(2, '0')} / {String(totalSlides).padStart(2, '0')}
@@ -222,7 +224,7 @@ export function SlidePreview({ slide, template, platform, totalSlides, scale = 1
             {!isLastSlide && (
               <span style={{
                 position: 'absolute', right: 0, top: 0,
-                fontSize: 18, fontWeight: 500,
+                fontSize: 22, fontWeight: 500,
                 color: colors.faint, letterSpacing: '0.05em',
               }}>
                 swipe →
