@@ -81,14 +81,16 @@ export function SlidePreview({ slide, template, platform, totalSlides, scale = 1
           <KarkoLogo template={template} />
         </div>
 
-        {/* Layer 3b: Content — table layout for html2canvas-safe vertical centering */}
+        {/* Layer 3b: Content — flex layout for vertical centering (works with html2canvas) */}
         <div style={{
           position: 'absolute', zIndex: 10,
           top: 170, left: 80, right: 80, bottom: 130,
-          display: 'table',
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'center',
           width: W - 160,
         }}>
-          <div style={{ display: 'table-cell', verticalAlign: 'middle' }}>
+          <div>
             {/* Eyebrow / category label */}
             {slide.eyebrow && (
               <p style={{
