@@ -73,18 +73,22 @@ export function SlidePreview({ slide, template, platform, totalSlides, scale = 1
         {/* Layer 2: Gradient overlay */}
         <div style={{ position: 'absolute', inset: 0, background: overlayMap[template] }} />
 
-        {/* Layer 3: Content — simple block layout (html2canvas compatible) */}
+        {/* Layer 3a: Logo — pinned at top */}
         <div style={{
           position: 'absolute', zIndex: 10,
-          top: 0, left: 0, right: 0,
-          padding: '56px 80px 0 80px',
+          top: 56, left: 80,
         }}>
-          {/* Logo */}
-          <div style={{ marginBottom: 48 }}>
-            <KarkoLogo template={template} />
-          </div>
+          <KarkoLogo template={template} />
+        </div>
 
-          <div>
+        {/* Layer 3b: Content — table layout for html2canvas-safe vertical centering */}
+        <div style={{
+          position: 'absolute', zIndex: 10,
+          top: 170, left: 80, right: 80, bottom: 130,
+          display: 'table',
+          width: W - 160,
+        }}>
+          <div style={{ display: 'table-cell', verticalAlign: 'middle' }}>
             {/* Eyebrow / category label */}
             {slide.eyebrow && (
               <p style={{
@@ -161,19 +165,18 @@ export function SlidePreview({ slide, template, platform, totalSlides, scale = 1
 
             {/* Swipe hint — below content, on slides 1-4 only */}
             {!isLastSlide && (
-              <div style={{
-                display: 'flex', alignItems: 'center', gap: 12,
-                marginTop: 44,
-              }}>
+              <div style={{ marginTop: 44 }}>
                 <span style={{
                   fontSize: 24, fontWeight: 700,
                   color: colors.faint,
                   letterSpacing: '0.1em',
                   textTransform: 'uppercase',
+                  verticalAlign: 'middle',
                 }}>
                   Swipe
                 </span>
-                <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none"
+                  style={{ verticalAlign: 'middle', marginLeft: 12 }}>
                   <path d="M5 12h14m0 0l-5-5m5 5l-5 5"
                     stroke={accentColor} strokeWidth="2.5"
                     strokeLinecap="round" strokeLinejoin="round" />
@@ -188,11 +191,14 @@ export function SlidePreview({ slide, template, platform, totalSlides, scale = 1
           position: 'absolute', bottom: 0, left: 0, right: 0,
           zIndex: 20, padding: '0 64px 56px',
         }}>
-          {/* Progress bars — full-width thin bars like the Sonnet design */}
-          <div style={{ display: 'flex', gap: 6, marginBottom: 20 }}>
+          {/* Progress bars — inline-block for html2canvas compatibility */}
+          <div style={{ marginBottom: 20, whiteSpace: 'nowrap' }}>
             {Array.from({ length: totalSlides }, (_, i) => i + 1).map(i => (
               <div key={i} style={{
-                flex: 1, height: 3, borderRadius: 2,
+                display: 'inline-block',
+                width: `calc(${100 / totalSlides}% - 6px)`,
+                marginRight: i < totalSlides ? 6 : 0,
+                height: 3, borderRadius: 2,
                 background: i <= slide.id
                   ? (i === slide.id ? accentColor : (template === 'karko-navy' ? 'rgba(200,164,78,0.35)' : 'rgba(15,27,61,0.2)'))
                   : (template === 'karko-navy' ? 'rgba(255,255,255,0.12)' : 'rgba(15,27,61,0.08)'),
@@ -201,7 +207,7 @@ export function SlidePreview({ slide, template, platform, totalSlides, scale = 1
           </div>
 
           {/* Footer row */}
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <div style={{ position: 'relative' }}>
             <span style={{
               fontSize: 20, fontWeight: 600,
               color: colors.faint, letterSpacing: '0.05em',
@@ -210,6 +216,7 @@ export function SlidePreview({ slide, template, platform, totalSlides, scale = 1
             </span>
             {!isLastSlide && (
               <span style={{
+                position: 'absolute', right: 0, top: 0,
                 fontSize: 18, fontWeight: 500,
                 color: colors.faint, letterSpacing: '0.05em',
               }}>
