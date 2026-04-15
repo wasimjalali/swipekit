@@ -3,26 +3,21 @@ import { NextRequest, NextResponse } from 'next/server';
 export const maxDuration = 60;
 
 function buildFluxPrompt(visual_theme: string, template: string, accent_color: string): string {
-  const styleMap: Record<string, string> = {
+  const colorGrade: Record<string, string> = {
     'karko-navy':
-      'Dominant palette of deep midnight navy and ink-black tones with molten gold accent light bleeding through layered translucent surfaces. ' +
-      'Volumetric backlighting casting warm amber god rays through atmospheric haze, evoking upward momentum and professional ambition. ' +
-      'Rich dimensional depth with tightly detailed foreground textures dissolving into dark void. ' +
-      'Surfaces of brushed metal, dark silk fabric folds, and liquid mercury reflections. ' +
-      'Cinematic chiaroscuro lighting, premium career editorial aesthetic, painterly impasto micro-detail.',
+      'Color graded in deep midnight navy and dark blue-black tones with warm gold accent lighting. ' +
+      'Dark moody atmosphere, cinematic shadows.',
     'karko-cream':
-      'Dominant palette of warm ivory cream and soft champagne tones with golden hour light suffusing through layered translucent mist. ' +
-      'Volumetric soft-box lighting with warm subsurface scattering through organic flowing shapes, conveying clarity and confident transformation. ' +
-      'Rich textural depth from layered watercolor washes, marble veining, and draped silk fabric folds. ' +
-      'Foreground detail of intricate organic patterns dissolving into luminous open space. ' +
-      'Soft bokeh highlights, iridescent pearl sheen on surfaces, aspirational editorial photography aesthetic, ultra-detailed.',
+      'Color graded in warm ivory cream and soft champagne tones with golden hour warmth. ' +
+      'Light airy atmosphere, soft luminous highlights.',
   };
 
   return [
     visual_theme,
-    styleMap[template] ?? styleMap['karko-navy'],
-    'Pure abstract visual composition devoid of any figures, symbols, letters, or legible elements.',
-  ].join('. ');
+    colorGrade[template] ?? colorGrade['karko-navy'],
+    'Heavily blurred background with shallow depth of field, bokeh, editorial photography.',
+    'No readable text, no words, no letters, no logos, no recognizable faces.',
+  ].join(' ');
 }
 
 export async function POST(req: NextRequest) {

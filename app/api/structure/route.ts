@@ -58,23 +58,41 @@ SLIDE COUNT:
 
 VISUAL THEME DIRECTION:
 Each slide needs a "visual_theme" for AI background generation via FLUX image model.
-Write 30-50 words of flowing natural language (NOT comma-separated tags).
-Requirements:
-- Abstract, atmospheric, textural — NEVER literal objects, people, or text
-- Match the emotional tone of that slide's message. This is a career/job-seeker brand —
-  visual tones should evoke ambition, momentum, confidence, transformation, and professional aspiration.
-  Think editorial career magazine, not corporate clip art.
-- MUST include: (1) a specific abstract form (fluid simulation, crystalline fractals, nebula clouds,
-  smoke tendrils, ink diffusion, fabric folds, geological strata, etc.), (2) explicit lighting type
-  (volumetric backlighting, rim lighting, god rays, subsurface scattering, etc.),
-  (3) textural detail (layered translucency, granular noise, iridescent sheen, impasto surface, etc.),
-  (4) depth cue (foreground detail dissolving into void, layered planes, atmospheric perspective, etc.)
-- NEVER include any words, letters, numbers, brand names, URLs, hex codes, or readable text.
-  The image model renders text literally.
-- Bad example: "Navy #0F1B3D background with Karko branding"
-- Good example: "Fluid simulation of liquid ink diffusing through water, volumetric backlighting
-  casting prismatic refractions through translucent layers, intricate micro-surface texture at
-  every scale, foreground detail dissolving into deep atmospheric void"
+Write 40-60 words of flowing natural language (NOT comma-separated tags).
+
+YOUR GOAL: The background must VISUALLY RELATE to what the slide is about.
+Read the slide's content and choose a visual metaphor that reinforces the message.
+This is a career, job-search, and AI brand — backgrounds should feel relevant to the topic.
+
+VISUAL METAPHOR EXAMPLES by topic:
+- Job rejections/frustration → scattered crumpled papers on a desk, motion-blurred closed doors,
+  an empty inbox on a laptop screen, overflowing application forms
+- ATS/technology/AI → glowing digital interface with data flowing, abstract circuit board patterns,
+  code streaming across translucent screens, holographic display with scanning lines
+- Career growth/opportunity → sunlit open doorway at end of a corridor, ascending staircase
+  with dramatic light, a bridge stretching toward a bright horizon, upward-reaching architecture
+- Speed/efficiency → motion-blurred cityscape, light trails on a highway at night,
+  fast-moving train through a tunnel, streaks of light converging to a focal point
+- Solution/product reveal → clean modern workspace with warm lighting, elegant desk setup
+  with soft golden glow, professional tools arranged in editorial still-life
+- CTA/final slide → expansive sky at golden hour, open road stretching to horizon,
+  dawn light breaking through clouds, a bright threshold inviting you forward
+
+STYLE REQUIREMENTS:
+- Heavily blurred, out-of-focus, or atmospheric — the image is a BACKGROUND behind text
+- Cinematic, editorial, high-production-value photography look
+- Dramatic lighting: volumetric rays, golden hour warmth, moody chiaroscuro, or soft studio glow
+- NEVER include any readable text, words, letters, numbers, logos, or brand names
+  — the image model renders text literally
+- NEVER include recognizable human faces or full figures (blurred silhouettes are OK)
+- Think: if you squint, you can tell what the scene is, but it's beautifully soft and atmospheric
+
+Bad example: "Navy #0F1B3D background with Karko branding"
+Bad example: "Abstract fluid simulation with crystalline fractals" (no content relevance!)
+Good example: "Dramatically blurred stack of application documents on a dark desk, warm amber
+  side-lighting casting long shadows, shallow depth of field, moody editorial photography"
+Good example: "Out-of-focus glowing digital interface with streaming data particles, cool blue
+  holographic light in a dark space, cinematic volumetric haze, futuristic editorial aesthetic"
 
 ACCENT COLOR:
 - For "karko-navy" template: use #C8A44E (Karko Gold) as accent_color for ALL slides
