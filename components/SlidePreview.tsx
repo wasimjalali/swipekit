@@ -144,23 +144,26 @@ export function SlidePreview({ slide, template, platform, totalSlides, scale = 1
               </p>
             )}
 
-            {/* CTA text — slide 5 only */}
+            {/* CTA — last slide only, each line rendered separately */}
             {slide.cta && (
-              <div style={{ marginTop: 40 }}>
-                <div style={{
-                  display: 'inline-block',
-                  background: accentColor,
-                  borderRadius: 14,
-                  padding: '18px 40px',
-                }}>
-                  <span style={{
-                    fontSize: 38, fontWeight: 700,
-                    color: template === 'karko-navy' ? KARKO_BRAND.navy : '#FFFFFF',
-                    letterSpacing: '0.02em',
+              <div style={{ marginTop: 40, display: 'flex', flexDirection: 'column', gap: 16 }}>
+                {slide.cta.split('\n').filter(Boolean).map((line, idx) => (
+                  <div key={idx} style={{
+                    display: 'inline-block',
+                    alignSelf: 'flex-start',
+                    background: accentColor,
+                    borderRadius: 14,
+                    padding: '14px 36px',
                   }}>
-                    {slide.cta}
-                  </span>
-                </div>
+                    <span style={{
+                      fontSize: 34, fontWeight: 700,
+                      color: template === 'karko-navy' ? KARKO_BRAND.navy : '#FFFFFF',
+                      letterSpacing: '0.02em',
+                    }}>
+                      {line.trim()}
+                    </span>
+                  </div>
+                ))}
               </div>
             )}
 
