@@ -67,11 +67,11 @@ function patchSlideForLinkedIn(el: HTMLElement, slideId: number): () => void {
     box.style.width = `${LINKEDIN_DIMS.w - liSz.left - liSz.right}px`;
   }
 
-  // Patch bottom bar
-  const bottomBar = el.lastElementChild as HTMLElement | null;
-  const savedBottomPad = bottomBar?.style.padding;
+  // Hide bottom bar (progress bars, slide counter, swipe hint) — not needed in LinkedIn PDFs
+  const bottomBar = el.querySelector(`[data-bottom-bar="slide-${slideId}"]`) as HTMLElement | null;
+  const savedBottomDisplay = bottomBar?.style.display;
   if (bottomBar) {
-    bottomBar.style.padding = `0 ${liSz.left}px ${Math.min(liSz.bottom, 56)}px`;
+    bottomBar.style.display = 'none';
   }
 
   return () => {
@@ -88,7 +88,7 @@ function patchSlideForLinkedIn(el: HTMLElement, slideId: number): () => void {
       box.style.width = savedBox.width;
     }
     if (bottomBar) {
-      bottomBar.style.padding = savedBottomPad!;
+      bottomBar.style.display = savedBottomDisplay!;
     }
   };
 }

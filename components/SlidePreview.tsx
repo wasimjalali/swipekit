@@ -167,11 +167,13 @@ export function SlidePreview({ slide, template, platform, totalSlides, scale = 1
           </div>
         </div>
 
-        {/* Bottom bar area — progress + slide number */}
-        <div style={{
-          position: 'absolute', bottom: 0, left: 0, right: 0,
-          zIndex: 20, padding: `0 ${sz.left}px ${Math.min(sz.bottom, 56)}px`,
-        }}>
+        {/* Bottom bar area — progress + slide number (Instagram only; LinkedIn PDFs use page-turn) */}
+        {platform !== 'linkedin' && <div
+          data-bottom-bar={`slide-${slide.id}`}
+          style={{
+            position: 'absolute', bottom: 0, left: 0, right: 0,
+            zIndex: 20, padding: `0 ${sz.left}px ${Math.min(sz.bottom, 56)}px`,
+          }}>
           {/* Progress bars — inline-block for html2canvas compatibility */}
           <div style={{ marginBottom: 20, whiteSpace: 'nowrap' }}>
             {Array.from({ length: totalSlides }, (_, i) => i + 1).map(i => (
@@ -207,7 +209,7 @@ export function SlidePreview({ slide, template, platform, totalSlides, scale = 1
               </span>
             )}
           </div>
-        </div>
+        </div>}
       </div>
     </div>
   );
