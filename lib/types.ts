@@ -2,13 +2,13 @@ export type SlideType = 'cover' | 'point' | 'quote' | 'stat' | 'cta';
 export type Template = 'karko-navy' | 'karko-cream';
 
 export interface Slide {
-  id: number;              // 1–5
+  id: number;
   type: SlideType;
   headline: string;        // Primary headline — displayed largest
   subtext: string;         // Secondary line — displayed below headline
   body: string;            // Supporting body text / closer line
   eyebrow?: string;        // Small label above headline
-  cta?: string;            // CTA text on slide 5 only
+  cta?: string;            // CTA text on last slide only
   visual_theme: string;    // Sent to FLUX as part of background prompt
   accent_color: string;    // Hex color for text accents + dots
   background_url?: string; // Base64 data URL after generation
@@ -44,6 +44,20 @@ export const SAFE_ZONES: Record<string, SafeZone> = {
 /* ── LinkedIn-specific dimensions for dual export ── */
 
 export const LINKEDIN_DIMS = { w: 1080, h: 1080 } as const;
+
+/* ── Slide Count Limits ── */
+
+export const MAX_SLIDES: Record<string, number> = {
+  instagram: 5,
+  linkedin:  8,
+  both:      8,
+};
+
+export const DEFAULT_SLIDES: Record<string, number> = {
+  instagram: 5,
+  linkedin:  5,
+  both:      5,
+};
 
 /* ── Karko AI Brand Palette ── */
 

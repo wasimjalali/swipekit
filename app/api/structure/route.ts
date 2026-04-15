@@ -53,8 +53,11 @@ NEVER output any of these as visible slide text:
 - Any numbering like "1.", "2." that the user used for slide structure
 
 SLIDE COUNT:
-- Map exactly as many slides as the user provides (typically 5)
-- If the user provides "Slide 1" through "Slide 5", output 5 slides
+- The user will specify how many slides they want (between 1 and 8).
+- Output EXACTLY that many slides — no more, no fewer.
+- If the user's content has more sections than requested slides, combine or prioritize.
+- If the user's content has fewer sections, split existing content across slides.
+- The LAST slide should always be the CTA slide (type "cta") if the user provides CTA text.
 
 VISUAL THEME DIRECTION:
 Each slide needs a "visual_theme" for AI background generation via FLUX image model.
@@ -105,43 +108,46 @@ const client = new OpenAI({
   baseURL: process.env.AZURE_OPENAI_ENDPOINT!,
 });
 
-const carouselSchema = {
-  type: 'object',
-  properties: {
-    topic: { type: 'string' },
-    template: { type: 'string', enum: ['karko-navy', 'karko-cream'] },
-    brand_color: { type: 'string' },
-    platform: { type: 'string', enum: ['instagram', 'linkedin', 'both'] },
-    slides: {
-      type: 'array',
-      items: {
-        type: 'object',
-        properties: {
-          id: { type: 'number' },
-          type: { type: 'string', enum: ['cover', 'point', 'quote', 'stat', 'cta'] },
-          headline: { type: 'string' },
-          subtext: { type: 'string' },
-          body: { type: 'string' },
-          eyebrow: { type: 'string' },
-          cta: { type: 'string' },
-          visual_theme: { type: 'string' },
-          accent_color: { type: 'string' },
-          status: { type: 'string', enum: ['pending'] },
+function buildCarouselSchema(slideCount: number) {
+  return {
+    type: 'object' as const,
+    properties: {
+      topic: { type: 'string' as const },
+      template: { type: 'string' as const, enum: ['karko-navy', 'karko-cream'] },
+      brand_color: { type: 'string' as const },
+      platform: { type: 'string' as const, enum: ['instagram', 'linkedin', 'both'] },
+      slides: {
+        type: 'array' as const,
+        items: {
+          type: 'object' as const,
+          properties: {
+            id: { type: 'number' as const },
+            type: { type: 'string' as const, enum: ['cover', 'point', 'quote', 'stat', 'cta'] },
+            headline: { type: 'string' as const },
+            subtext: { type: 'string' as const },
+            body: { type: 'string' as const },
+            eyebrow: { type: 'string' as const },
+            cta: { type: 'string' as const },
+            visual_theme: { type: 'string' as const },
+            accent_color: { type: 'string' as const },
+            status: { type: 'string' as const, enum: ['pending'] },
+          },
+          required: ['id', 'type', 'headline', 'subtext', 'body', 'eyebrow', 'cta', 'visual_theme', 'accent_color', 'status'] as const,
+          additionalProperties: false,
         },
-        required: ['id', 'type', 'headline', 'subtext', 'body', 'eyebrow', 'cta', 'visual_theme', 'accent_color', 'status'],
-        additionalProperties: false,
+        minItems: slideCount,
+        maxItems: slideCount,
       },
-      minItems: 5,
-      maxItems: 5,
     },
-  },
-  required: ['topic', 'template', 'brand_color', 'platform', 'slides'],
-  additionalProperties: false,
-};
+    required: ['topic', 'template', 'brand_color', 'platform', 'slides'] as const,
+    additionalProperties: false,
+  };
+}
 
 export async function POST(req: NextRequest) {
   try {
-    const { content, template, platform, brand_color } = await req.json();
+    const { content, template, platform, brand_color, slideCount: rawCount } = await req.json();
+    const slideCount = Math.max(1, Math.min(8, Number(rawCount) || 5));
 
     const response = await client.chat.completions.create({
       model: process.env.AZURE_OPENAI_DEPLOYMENT!,
@@ -149,18 +155,18 @@ export async function POST(req: NextRequest) {
         { role: 'system', content: SYSTEM_PROMPT },
         {
           role: 'user',
-          content: `Content:\n"""\n${content}\n"""\n\nSettings:\n- Template: ${template}\n- Platform: ${platform}\n- Brand color: ${brand_color ?? 'use Karko brand defaults (Gold for navy theme, Navy for cream theme)'}`,
+          content: `Content:\n"""\n${content}\n"""\n\nSettings:\n- Template: ${template}\n- Platform: ${platform}\n- Number of slides: ${slideCount}\n- Brand color: ${brand_color ?? 'use Karko brand defaults (Gold for navy theme, Navy for cream theme)'}`,
         },
       ],
       response_format: {
         type: 'json_schema',
         json_schema: {
           name: 'carousel_config',
-          schema: carouselSchema,
+          schema: buildCarouselSchema(slideCount),
           strict: true,
         },
       },
-      max_tokens: 3000,
+      max_tokens: 4000,
       temperature: 0.3,
     });
 

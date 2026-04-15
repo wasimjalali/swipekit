@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
-import { CarouselConfig, Slide, Template, KARKO_BRAND, KARKO_LOGO_LIGHT, KARKO_LOGO_DARK, PLATFORM_DIMS } from '@/lib/types';
+import { CarouselConfig, Slide, Template, KARKO_BRAND, KARKO_LOGO_LIGHT, KARKO_LOGO_DARK, PLATFORM_DIMS, MAX_SLIDES, DEFAULT_SLIDES } from '@/lib/types';
 import { SlidePreview } from '@/components/SlidePreview';
 import { exportCarousel } from '@/lib/export';
 
@@ -55,6 +55,7 @@ export default function Home() {
   const [content, setContent] = useState('');
   const [template, setTemplate] = useState<Template>('karko-navy');
   const [platform, setPlatform] = useState<'instagram' | 'linkedin' | 'both'>('instagram');
+  const [slideCount, setSlideCount] = useState(5);
   const [carousel, setCarousel] = useState<CarouselConfig | null>(null);
   const [progress, setProgress] = useState(0);
   const [error, setError] = useState('');
@@ -62,6 +63,20 @@ export default function Home() {
   const [regenerating, setRegenerating] = useState<number | null>(null);
   const [exportName, setExportName] = useState('');
   const abortRef = useRef(false);
+  const maxSlides = MAX_SLIDES[platform] || 5;
+
+  function handlePlatformChange(newPlatform: typeof platform) {
+    setPlatform(newPlatform);
+    const newMax = MAX_SLIDES[newPlatform] || 5;
+    const newDefault = DEFAULT_SLIDES[newPlatform] || 5;
+    // If current count exceeds new max, clamp it; otherwise set to new default
+    if (slideCount > newMax) {
+      setSlideCount(newMax);
+    } else if (slideCount === MAX_SLIDES[platform] || slideCount === DEFAULT_SLIDES[platform]) {
+      // User was at the old default/max — switch to new platform's default
+      setSlideCount(newDefault);
+    }
+  }
 
   // Restore session from localStorage on first load
   useEffect(() => {
@@ -103,6 +118,7 @@ export default function Home() {
           content,
           template,
           platform,
+          slideCount,
           brand_color: template === 'karko-navy' ? KARKO_BRAND.gold : KARKO_BRAND.navy,
         }),
       });
@@ -215,6 +231,7 @@ export default function Home() {
     setError('');
     setContent('');
     setExportName('');
+    setSlideCount(DEFAULT_SLIDES[platform] || 5);
     try { localStorage.removeItem(STORAGE_KEY); } catch { /* ignore */ }
   }
 
@@ -251,7 +268,7 @@ export default function Home() {
               Create a Carousel
             </h2>
             <p style={{ color: KARKO_BRAND.warmGray, marginBottom: 32, fontSize: 14 }}>
-              Paste your content and we'll turn it into 5 polished slides with Karko AI branding.
+              Paste your content and we'll turn it into polished carousel slides with Karko AI branding.
             </p>
 
             {error && (
@@ -273,7 +290,7 @@ export default function Home() {
                 <textarea
                   value={content}
                   onChange={e => setContent(e.target.value)}
-                  placeholder="Paste your article, notes, ideas, or any raw text here. The AI will extract key insights and structure them into 5 carousel slides."
+                  placeholder="Paste your article, notes, ideas, or any raw text here. The AI will extract key insights and structure them into carousel slides."
                   rows={8}
                   style={{
                     width: '100%',
@@ -357,7 +374,7 @@ export default function Home() {
                   </label>
                   <select
                     value={platform}
-                    onChange={e => setPlatform(e.target.value as typeof platform)}
+                    onChange={e => handlePlatformChange(e.target.value as typeof platform)}
                     style={{
                       width: '100%',
                       background: '#FFFFFF',
@@ -374,6 +391,44 @@ export default function Home() {
                     <option value="both">Both Platforms</option>
                   </select>
                 </div>
+              </div>
+
+              {/* Slide count */}
+              <div>
+                <label style={{ display: 'block', fontSize: 13, fontWeight: 600, color: KARKO_BRAND.navy, marginBottom: 8 }}>
+                  Number of Slides
+                </label>
+                <div style={{ display: 'flex', gap: 8 }}>
+                  {Array.from({ length: maxSlides }, (_, i) => i + 1).map(n => (
+                    <button
+                      key={n}
+                      onClick={() => setSlideCount(n)}
+                      style={{
+                        flex: 1,
+                        padding: '10px 0',
+                        borderRadius: 8,
+                        border: slideCount === n
+                          ? `2px solid ${KARKO_BRAND.gold}`
+                          : '2px solid rgba(15,27,61,0.12)',
+                        background: slideCount === n
+                          ? (template === 'karko-navy' ? KARKO_BRAND.navy : KARKO_BRAND.cream100)
+                          : '#FFFFFF',
+                        color: slideCount === n
+                          ? (template === 'karko-navy' ? '#FFFFFF' : KARKO_BRAND.navy)
+                          : KARKO_BRAND.charcoal,
+                        cursor: 'pointer',
+                        fontSize: 14,
+                        fontWeight: 600,
+                        transition: 'all 0.2s',
+                      }}
+                    >
+                      {n}
+                    </button>
+                  ))}
+                </div>
+                <p style={{ fontSize: 11, color: KARKO_BRAND.warmGray, marginTop: 6 }}>
+                  Max {MAX_SLIDES.instagram} for Instagram, {MAX_SLIDES.linkedin} for LinkedIn
+                </p>
               </div>
 
               {/* Generate button */}
@@ -412,7 +467,7 @@ export default function Home() {
               borderRadius: '50%',
               animation: 'spin 0.8s linear infinite',
             }} />
-            <p style={{ color: KARKO_BRAND.warmGray, fontSize: 14 }}>Structuring your content into 5 slides...</p>
+            <p style={{ color: KARKO_BRAND.warmGray, fontSize: 14 }}>Structuring your content into {slideCount} slide{slideCount !== 1 ? 's' : ''}...</p>
             <style>{`@keyframes spin { to { transform: rotate(360deg) } }`}</style>
           </div>
         )}
