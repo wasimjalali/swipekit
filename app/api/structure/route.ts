@@ -1,4 +1,4 @@
-import { AzureOpenAI } from 'openai';
+import OpenAI from 'openai';
 import { NextRequest, NextResponse } from 'next/server';
 
 const SYSTEM_PROMPT = `You are Karko AI's carousel layout engine.
@@ -82,11 +82,9 @@ ACCENT COLOR:
 
 OUTPUT: Return ONLY valid JSON. No markdown. No explanation. Strictly follow the schema.`;
 
-const client = new AzureOpenAI({
+const client = new OpenAI({
   apiKey: process.env.AZURE_OPENAI_KEY!,
-  endpoint: process.env.AZURE_OPENAI_ENDPOINT!,
-  apiVersion: '2025-01-01-preview',
-  deployment: process.env.AZURE_OPENAI_DEPLOYMENT!,
+  baseURL: process.env.AZURE_OPENAI_ENDPOINT!,
 });
 
 const carouselSchema = {
