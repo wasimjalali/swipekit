@@ -119,25 +119,19 @@ export function SlidePreview({ slide, template, platform, totalSlides, scale = 1
               {slide.headline}
             </h1>
 
-            {/* Gold divider line between headline and subtext */}
-            <div style={{
-              width: 56, height: 4, borderRadius: 2,
-              background: accentColor,
-              margin: '32px 0',
-            }} />
-
             {/* Subtext */}
             <p style={{
               fontSize: 42, lineHeight: 1.45,
               color: colors.muted,
               maxWidth: 840,
               margin: 0,
+              marginTop: 28,
             }}>
               {slide.subtext}
             </p>
 
-            {/* Body text — supporting lines, closers, cliffhangers */}
-            {slide.body && (
+            {/* Body text — supporting lines, closers, cliffhangers (hidden on CTA slide when button is shown) */}
+            {slide.body && !slide.cta && (
               <p style={{
                 marginTop: 28, fontSize: 34, lineHeight: 1.5,
                 color: accentColor,
@@ -170,26 +164,6 @@ export function SlidePreview({ slide, template, platform, totalSlides, scale = 1
               </div>
             )}
 
-            {/* Swipe hint — below content, on slides 1-4 only */}
-            {!isLastSlide && (
-              <div style={{ marginTop: 44 }}>
-                <span style={{
-                  fontSize: 24, fontWeight: 700,
-                  color: colors.faint,
-                  letterSpacing: '0.1em',
-                  textTransform: 'uppercase',
-                  verticalAlign: 'middle',
-                }}>
-                  Swipe
-                </span>
-                <svg width="28" height="28" viewBox="0 0 24 24" fill="none"
-                  style={{ verticalAlign: 'middle', marginLeft: 12 }}>
-                  <path d="M5 12h14m0 0l-5-5m5 5l-5 5"
-                    stroke={accentColor} strokeWidth="2.5"
-                    strokeLinecap="round" strokeLinejoin="round" />
-                </svg>
-              </div>
-            )}
           </div>
         </div>
 
@@ -223,11 +197,13 @@ export function SlidePreview({ slide, template, platform, totalSlides, scale = 1
             </span>
             {!isLastSlide && (
               <span style={{
-                position: 'absolute', right: 0, top: 0,
-                fontSize: 22, fontWeight: 500,
-                color: colors.faint, letterSpacing: '0.05em',
+                position: 'absolute', right: 0, top: -2,
+                fontSize: 26, fontWeight: 700,
+                color: accentColor,
+                letterSpacing: '0.06em',
+                textTransform: 'uppercase',
               }}>
-                swipe →
+                Swipe →
               </span>
             )}
           </div>

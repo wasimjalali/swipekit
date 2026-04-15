@@ -44,8 +44,9 @@ Within each slide, the text lines map as follows:
 - "cta" → ONLY for the LAST slide. Use the user's exact CTA/link/button text VERBATIM.
   If user has multiple CTA-like lines, combine with newlines.
   Use empty string "" for ALL non-last slides.
-  IMPORTANT: If a line is used as the "cta", do NOT also put it in "body".
-  The CTA text must appear in ONLY the "cta" field, never duplicated in "body".
+  CRITICAL: On the last slide, set "body" to "" (empty string). ALL CTA/link/action text
+  goes in the "cta" field ONLY. The body field must be empty on the CTA slide because
+  the UI renders the CTA as a button — any text in "body" would be duplicated.
 
 NEVER output any of these as visible slide text:
 - "Slide 1", "Slide 2", etc.
