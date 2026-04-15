@@ -35,8 +35,12 @@ export async function POST(req: NextRequest) {
     const imgWidth = 1024;
     const imgHeight = 1024;
 
+    // AZURE_FOUNDRY_ENDPOINT should be the base URL (e.g. https://slideco-resource.services.ai.azure.com)
+    // The full path is appended here
     const endpoint = process.env.AZURE_FOUNDRY_ENDPOINT!;
-    const url = `${endpoint}/providers/blackforestlabs/v1/flux-2-pro?api-version=preview`;
+    const url = endpoint.includes('/providers/')
+      ? endpoint  // env var already contains full URL
+      : `${endpoint}/providers/blackforestlabs/v1/flux-2-pro?api-version=preview`;
 
     const response = await fetch(url, {
       method: 'POST',

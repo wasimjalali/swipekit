@@ -85,7 +85,7 @@ OUTPUT: Return ONLY valid JSON. No markdown. No explanation. Strictly follow the
 const client = new AzureOpenAI({
   apiKey: process.env.AZURE_OPENAI_KEY!,
   endpoint: process.env.AZURE_OPENAI_ENDPOINT!,
-  apiVersion: '2024-04-01-preview',
+  apiVersion: '2025-01-01-preview',
   deployment: process.env.AZURE_OPENAI_DEPLOYMENT!,
 });
 
