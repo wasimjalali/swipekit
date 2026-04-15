@@ -1,11 +1,42 @@
 'use client';
 
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { CarouselConfig, Slide, Template, KARKO_BRAND, KARKO_LOGO_LIGHT, KARKO_LOGO_DARK, PLATFORM_DIMS } from '@/lib/types';
 import { SlidePreview } from '@/components/SlidePreview';
 import { exportCarousel } from '@/lib/export';
 
 type Step = 'input' | 'structuring' | 'generating' | 'done';
+
+const STORAGE_KEY = 'slideco_session';
+
+function saveSession(data: { step: Step; carousel: CarouselConfig | null; content: string; exportName: string }) {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+  } catch {
+    // localStorage quota exceeded (large base64 images) — try without background images
+    try {
+      const slim = {
+        ...data,
+        carousel: data.carousel ? {
+          ...data.carousel,
+          slides: data.carousel.slides.map(s => ({ ...s, background_url: undefined })),
+        } : null,
+      };
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(slim));
+    } catch {
+      // give up silently
+    }
+  }
+}
+
+function loadSession(): { step: Step; carousel: CarouselConfig | null; content: string; exportName: string } | null {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    return raw ? JSON.parse(raw) : null;
+  } catch {
+    return null;
+  }
+}
 
 const SLIDE_SCALE = 0.28;
 
@@ -27,6 +58,32 @@ export default function Home() {
   const [regenerating, setRegenerating] = useState<number | null>(null);
   const [exportName, setExportName] = useState('');
   const abortRef = useRef(false);
+
+  // Restore session from localStorage on first load
+  useEffect(() => {
+    const saved = loadSession();
+    if (!saved) return;
+    // Only restore if there's meaningful state (carousel or content)
+    if (saved.carousel) {
+      setCarousel(saved.carousel);
+      if (saved.carousel.template) setTemplate(saved.carousel.template);
+      if (saved.carousel.platform) setPlatform(saved.carousel.platform as typeof platform);
+    }
+    if (saved.content) setContent(saved.content);
+    if (saved.exportName) setExportName(saved.exportName);
+    // Don't restore mid-generation states; treat them as done or input
+    const restoredStep = (saved.step === 'generating' || saved.step === 'structuring')
+      ? (saved.carousel ? 'done' : 'input')
+      : saved.step;
+    setStep(restoredStep as Step);
+  }, []);
+
+  // Persist session whenever key state changes
+  useEffect(() => {
+    // Don't persist transient loading states
+    if (step === 'structuring') return;
+    saveSession({ step, carousel, content, exportName });
+  }, [step, carousel, content, exportName]);
 
   async function handleGenerate() {
     if (!content.trim()) return;
@@ -154,6 +211,7 @@ export default function Home() {
     setError('');
     setContent('');
     setExportName('');
+    try { localStorage.removeItem(STORAGE_KEY); } catch { /* ignore */ }
   }
 
   return (
