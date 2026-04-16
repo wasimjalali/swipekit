@@ -1,6 +1,7 @@
-import { NextRequest, NextResponse } from 'next/server';
+import type { NextRequest } from 'next/server';
+import { NextResponse } from 'next/server';
 
-export function middleware(req: NextRequest) {
+export function proxy(req: NextRequest) {
   const authHeader = req.headers.get('authorization');
 
   if (authHeader) {
@@ -8,6 +9,7 @@ export function middleware(req: NextRequest) {
     if (scheme === 'Basic' && encoded) {
       const decoded = Buffer.from(encoded, 'base64').toString('utf-8');
       const [user, pass] = decoded.split(':');
+
       if (
         user === process.env.AUTH_USER &&
         pass === process.env.AUTH_PASS

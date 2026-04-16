@@ -3,32 +3,32 @@ import JSZip from 'jszip';
 import { jsPDF } from 'jspdf';
 import { PLATFORM_DIMS, LINKEDIN_DIMS, SAFE_ZONES } from '@/lib/types';
 
-/**
- * Temporarily fix flex centering for html2canvas (which ignores flex/table centering).
- * Returns a restore function.
- */
-function patchFlexCentering(el: HTMLElement, slideId: number): () => void {
-  const box = el.querySelector(`[data-content-box="slide-${slideId}"]`) as HTMLElement | null;
-  const inner = el.querySelector(`[data-content-inner="slide-${slideId}"]`) as HTMLElement | null;
-  if (!box || !inner) return () => {};
+async function waitForSlideAssets(el: HTMLElement): Promise<void> {
+  if (typeof document !== 'undefined' && 'fonts' in document) {
+    await document.fonts.ready;
+  }
 
-  const boxH = box.offsetHeight;
-  const innerH = inner.offsetHeight;
-  const pad = Math.max(0, Math.floor((boxH - innerH) / 2));
-  const saved = {
-    display: box.style.display,
-    justifyContent: box.style.justifyContent,
-    paddingTop: box.style.paddingTop,
-  };
-  box.style.display = 'block';
-  box.style.justifyContent = '';
-  box.style.paddingTop = `${pad}px`;
+  const images = Array.from(el.querySelectorAll('img'));
+  await Promise.all(images.map(async img => {
+    if ('decode' in img) {
+      try {
+        await img.decode();
+        return;
+      } catch {
+        // Fall back to load/error listeners below.
+      }
+    }
 
-  return () => {
-    box.style.display = saved.display;
-    box.style.justifyContent = saved.justifyContent;
-    box.style.paddingTop = saved.paddingTop;
-  };
+    if (img.complete) return;
+
+    await new Promise<void>(resolve => {
+      const done = () => resolve();
+      img.addEventListener('load', done, { once: true });
+      img.addEventListener('error', done, { once: true });
+    });
+  }));
+
+  await new Promise<void>(resolve => requestAnimationFrame(() => resolve()));
 }
 
 /**
@@ -110,7 +110,7 @@ async function captureSlide(
   el.style.transform = 'none';
 
   const restoreLinkedIn = patchLinkedIn ? patchSlideForLinkedIn(el, slideId) : () => {};
-  const restoreFlex = patchFlexCentering(el, slideId);
+  await waitForSlideAssets(el);
 
   const canvas = await html2canvas(el, {
     width,
@@ -122,7 +122,6 @@ async function captureSlide(
     logging: false,
   });
 
-  restoreFlex();
   restoreLinkedIn();
   el.style.transform = prevTransform;
 

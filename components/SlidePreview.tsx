@@ -48,7 +48,7 @@ export function SlidePreview({ slide, template, platform, totalSlides, scale = 1
           height: H,
           position: 'relative',
           overflow: 'hidden',
-          fontFamily: "'Inter', sans-serif",
+          fontFamily: 'var(--font-geist-sans), system-ui, sans-serif',
           transform: `scale(${scale})`,
           transformOrigin: 'top left',
         }}
@@ -83,25 +83,34 @@ export function SlidePreview({ slide, template, platform, totalSlides, scale = 1
           <KarkoLogo template={template} />
         </div>
 
-        {/* Layer 3b: Content — flex centering for preview; export.ts computes padding for html2canvas */}
+        {/* Layer 3b: Content — use the same absolute centering in preview and export */}
         <div
           data-content-box={`slide-${slide.id}`}
           style={{
             position: 'absolute', zIndex: 10,
             top: sz.top + 120, left: sz.left, right: sz.right, bottom: sz.bottom + 50,
-            display: 'flex',
-            flexDirection: 'column',
-            justifyContent: 'center',
             width: contentWidth,
+            overflow: 'hidden',
           }}
         >
-          <div data-content-inner={`slide-${slide.id}`}>
+          <div
+            data-content-inner={`slide-${slide.id}`}
+            style={{
+              position: 'absolute',
+              top: '50%',
+              left: 0,
+              width: '100%',
+              transform: 'translateY(-50%)',
+            }}
+          >
             {/* Eyebrow / category label */}
             {slide.eyebrow && (
               <p style={{
+                margin: 0,
+                marginBottom: 20,
                 fontSize: 28, color: accentColor,
                 letterSpacing: '0.14em', textTransform: 'uppercase',
-                fontWeight: 700, marginBottom: 20,
+                fontWeight: 700,
               }}>
                 {slide.eyebrow}
               </p>
@@ -109,11 +118,11 @@ export function SlidePreview({ slide, template, platform, totalSlides, scale = 1
 
             {/* Headline */}
             <h1 style={{
+              margin: 0,
               fontSize: isCover ? 104 : 90,
               fontWeight: 800,
               lineHeight: 1.08,
               color: colors.primary,
-              marginBottom: 0,
               maxWidth: 880,
             }}>
               {slide.headline}
@@ -133,6 +142,7 @@ export function SlidePreview({ slide, template, platform, totalSlides, scale = 1
             {/* Body text — supporting lines, closers, cliffhangers (hidden on CTA slide when button is shown) */}
             {slide.body && !slide.cta && (
               <p style={{
+                margin: 0,
                 marginTop: 28, fontSize: 34, lineHeight: 1.5,
                 color: accentColor,
                 maxWidth: 800,
@@ -149,13 +159,16 @@ export function SlidePreview({ slide, template, platform, totalSlides, scale = 1
               <div style={{ marginTop: 40, display: 'flex', flexDirection: 'column', gap: 16 }}>
                 {slide.cta.split('\n').filter(Boolean).map((line, idx) => (
                   <div key={idx} style={{
-                    display: 'inline-block',
+                    display: 'inline-flex',
+                    alignItems: 'center',
                     alignSelf: 'flex-start',
                     background: accentColor,
                     borderRadius: 14,
                     padding: '14px 36px',
                   }}>
                     <span style={{
+                      display: 'block',
+                      lineHeight: 1.2,
                       fontSize: 34, fontWeight: 700,
                       color: template === 'karko-navy' ? KARKO_BRAND.navy : '#FFFFFF',
                       letterSpacing: '0.02em',
