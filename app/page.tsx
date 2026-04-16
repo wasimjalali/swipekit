@@ -263,11 +263,11 @@ export default function Home() {
       <div style={{ maxWidth: 1280, margin: '0 auto', padding: '32px 24px' }}>
         {/* ── Input Step ── */}
         {step === 'input' && (
-          <div style={{ maxWidth: 640, margin: '0 auto' }}>
+          <div style={{ maxWidth: 960, margin: '0 auto' }}>
             <h2 style={{ fontSize: 28, fontWeight: 700, marginBottom: 8, color: KARKO_BRAND.navy }}>
               Create a Carousel
             </h2>
-            <p style={{ color: KARKO_BRAND.warmGray, marginBottom: 32, fontSize: 14 }}>
+            <p style={{ color: KARKO_BRAND.warmGray, marginBottom: 28, fontSize: 14 }}>
               Paste your content and we'll turn it into polished carousel slides with Karko AI branding.
             </p>
 
@@ -281,8 +281,8 @@ export default function Home() {
               </div>
             )}
 
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
-              {/* Content textarea */}
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 320px', gap: 24, alignItems: 'start' }}>
+              {/* Left: Content textarea */}
               <div>
                 <label style={{ display: 'block', fontSize: 13, fontWeight: 600, color: KARKO_BRAND.navy, marginBottom: 8 }}>
                   Your Content
@@ -291,7 +291,7 @@ export default function Home() {
                   value={content}
                   onChange={e => setContent(e.target.value)}
                   placeholder="Paste your article, notes, ideas, or any raw text here. The AI will extract key insights and structure them into carousel slides."
-                  rows={8}
+                  rows={14}
                   style={{
                     width: '100%',
                     background: '#FFFFFF',
@@ -300,17 +300,27 @@ export default function Home() {
                     padding: '12px 16px',
                     fontSize: 14,
                     color: KARKO_BRAND.charcoal,
-                    resize: 'none',
+                    resize: 'vertical',
                     outline: 'none',
                     fontFamily: 'inherit',
+                    boxSizing: 'border-box',
                   }}
                 />
               </div>
 
-              {/* Theme + Platform row */}
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+              {/* Right: Controls panel */}
+              <div style={{
+                background: '#FFFFFF',
+                border: '1px solid rgba(15,27,61,0.10)',
+                borderRadius: 12,
+                padding: 20,
+                display: 'flex',
+                flexDirection: 'column',
+                gap: 20,
+              }}>
+                {/* Theme */}
                 <div>
-                  <label style={{ display: 'block', fontSize: 13, fontWeight: 600, color: KARKO_BRAND.navy, marginBottom: 8 }}>
+                  <label style={{ display: 'block', fontSize: 13, fontWeight: 600, color: KARKO_BRAND.navy, marginBottom: 10 }}>
                     Theme
                   </label>
                   <div style={{ display: 'flex', gap: 10 }}>
@@ -319,12 +329,12 @@ export default function Home() {
                       onClick={() => setTemplate('karko-navy')}
                       style={{
                         flex: 1,
-                        padding: '14px 12px',
+                        padding: '12px 10px',
                         borderRadius: 10,
                         border: template === 'karko-navy'
                           ? `2px solid ${KARKO_BRAND.gold}`
                           : '2px solid rgba(15,27,61,0.12)',
-                        background: template === 'karko-navy' ? KARKO_BRAND.navy : '#FFFFFF',
+                        background: template === 'karko-navy' ? KARKO_BRAND.navy : '#FAFAFA',
                         color: template === 'karko-navy' ? '#FFFFFF' : KARKO_BRAND.charcoal,
                         cursor: 'pointer',
                         fontSize: 13,
@@ -334,7 +344,7 @@ export default function Home() {
                       }}
                     >
                       <div style={{
-                        width: 24, height: 24, borderRadius: 6, margin: '0 auto 8px',
+                        width: 22, height: 22, borderRadius: 6, margin: '0 auto 8px',
                         background: `linear-gradient(135deg, ${KARKO_BRAND.navy} 50%, ${KARKO_BRAND.gold} 50%)`,
                       }} />
                       Navy
@@ -345,12 +355,12 @@ export default function Home() {
                       onClick={() => setTemplate('karko-cream')}
                       style={{
                         flex: 1,
-                        padding: '14px 12px',
+                        padding: '12px 10px',
                         borderRadius: 10,
                         border: template === 'karko-cream'
                           ? `2px solid ${KARKO_BRAND.gold}`
                           : '2px solid rgba(15,27,61,0.12)',
-                        background: template === 'karko-cream' ? KARKO_BRAND.cream100 : '#FFFFFF',
+                        background: template === 'karko-cream' ? KARKO_BRAND.cream100 : '#FAFAFA',
                         color: KARKO_BRAND.charcoal,
                         cursor: 'pointer',
                         fontSize: 13,
@@ -360,7 +370,7 @@ export default function Home() {
                       }}
                     >
                       <div style={{
-                        width: 24, height: 24, borderRadius: 6, margin: '0 auto 8px',
+                        width: 22, height: 22, borderRadius: 6, margin: '0 auto 8px',
                         background: `linear-gradient(135deg, ${KARKO_BRAND.cream} 50%, ${KARKO_BRAND.navy} 50%)`,
                       }} />
                       Cream
@@ -368,8 +378,9 @@ export default function Home() {
                   </div>
                 </div>
 
+                {/* Platform */}
                 <div>
-                  <label style={{ display: 'block', fontSize: 13, fontWeight: 600, color: KARKO_BRAND.navy, marginBottom: 8 }}>
+                  <label style={{ display: 'block', fontSize: 13, fontWeight: 600, color: KARKO_BRAND.navy, marginBottom: 10 }}>
                     Platform
                   </label>
                   <select
@@ -377,9 +388,9 @@ export default function Home() {
                     onChange={e => handlePlatformChange(e.target.value as typeof platform)}
                     style={{
                       width: '100%',
-                      background: '#FFFFFF',
+                      background: '#FAFAFA',
                       border: '1px solid rgba(15,27,61,0.15)',
-                      borderRadius: 10,
+                      borderRadius: 8,
                       padding: '10px 12px',
                       fontSize: 14,
                       color: KARKO_BRAND.charcoal,
@@ -391,68 +402,68 @@ export default function Home() {
                     <option value="both">Both Platforms</option>
                   </select>
                 </div>
-              </div>
 
-              {/* Slide count */}
-              <div>
-                <label style={{ display: 'block', fontSize: 13, fontWeight: 600, color: KARKO_BRAND.navy, marginBottom: 8 }}>
-                  Number of Slides
-                </label>
-                <div style={{ display: 'flex', gap: 8 }}>
-                  {Array.from({ length: maxSlides }, (_, i) => i + 1).map(n => (
-                    <button
-                      key={n}
-                      onClick={() => setSlideCount(n)}
-                      style={{
-                        flex: 1,
-                        padding: '10px 0',
-                        borderRadius: 8,
-                        border: slideCount === n
-                          ? `2px solid ${KARKO_BRAND.gold}`
-                          : '2px solid rgba(15,27,61,0.12)',
-                        background: slideCount === n
-                          ? (template === 'karko-navy' ? KARKO_BRAND.navy : KARKO_BRAND.cream100)
-                          : '#FFFFFF',
-                        color: slideCount === n
-                          ? (template === 'karko-navy' ? '#FFFFFF' : KARKO_BRAND.navy)
-                          : KARKO_BRAND.charcoal,
-                        cursor: 'pointer',
-                        fontSize: 14,
-                        fontWeight: 600,
-                        transition: 'all 0.2s',
-                      }}
-                    >
-                      {n}
-                    </button>
-                  ))}
+                {/* Slide count */}
+                <div>
+                  <label style={{ display: 'block', fontSize: 13, fontWeight: 600, color: KARKO_BRAND.navy, marginBottom: 10 }}>
+                    Number of Slides
+                  </label>
+                  <div style={{ display: 'flex', gap: 6 }}>
+                    {Array.from({ length: maxSlides }, (_, i) => i + 1).map(n => (
+                      <button
+                        key={n}
+                        onClick={() => setSlideCount(n)}
+                        style={{
+                          flex: 1,
+                          padding: '9px 0',
+                          borderRadius: 8,
+                          border: slideCount === n
+                            ? `2px solid ${KARKO_BRAND.gold}`
+                            : '2px solid rgba(15,27,61,0.12)',
+                          background: slideCount === n
+                            ? (template === 'karko-navy' ? KARKO_BRAND.navy : KARKO_BRAND.cream100)
+                            : '#FAFAFA',
+                          color: slideCount === n
+                            ? (template === 'karko-navy' ? '#FFFFFF' : KARKO_BRAND.navy)
+                            : KARKO_BRAND.charcoal,
+                          cursor: 'pointer',
+                          fontSize: 13,
+                          fontWeight: 600,
+                          transition: 'all 0.2s',
+                        }}
+                      >
+                        {n}
+                      </button>
+                    ))}
+                  </div>
+                  <p style={{ fontSize: 11, color: KARKO_BRAND.warmGray, marginTop: 6 }}>
+                    Max {MAX_SLIDES.instagram} for Instagram, {MAX_SLIDES.linkedin} for LinkedIn
+                  </p>
                 </div>
-                <p style={{ fontSize: 11, color: KARKO_BRAND.warmGray, marginTop: 6 }}>
-                  Max {MAX_SLIDES.instagram} for Instagram, {MAX_SLIDES.linkedin} for LinkedIn
-                </p>
-              </div>
 
-              {/* Generate button */}
-              <button
-                onClick={handleGenerate}
-                disabled={!content.trim()}
-                style={{
-                  width: '100%',
-                  background: !content.trim()
-                    ? 'rgba(15,27,61,0.3)'
-                    : `linear-gradient(135deg, ${KARKO_BRAND.gold400}, ${KARKO_BRAND.gold500})`,
-                  color: !content.trim() ? 'rgba(255,255,255,0.6)' : KARKO_BRAND.navy,
-                  fontWeight: 700,
-                  padding: '14px 0',
-                  borderRadius: 10,
-                  fontSize: 14,
-                  border: 'none',
-                  cursor: content.trim() ? 'pointer' : 'not-allowed',
-                  transition: 'all 0.2s',
-                  letterSpacing: '0.02em',
-                }}
-              >
-                Generate Carousel
-              </button>
+                {/* Generate button */}
+                <button
+                  onClick={handleGenerate}
+                  disabled={!content.trim()}
+                  style={{
+                    width: '100%',
+                    background: !content.trim()
+                      ? 'rgba(15,27,61,0.3)'
+                      : `linear-gradient(135deg, ${KARKO_BRAND.gold400}, ${KARKO_BRAND.gold500})`,
+                    color: !content.trim() ? 'rgba(255,255,255,0.6)' : KARKO_BRAND.navy,
+                    fontWeight: 700,
+                    padding: '14px 0',
+                    borderRadius: 10,
+                    fontSize: 14,
+                    border: 'none',
+                    cursor: content.trim() ? 'pointer' : 'not-allowed',
+                    transition: 'all 0.2s',
+                    letterSpacing: '0.02em',
+                  }}
+                >
+                  Generate Carousel
+                </button>
+              </div>
             </div>
           </div>
         )}
