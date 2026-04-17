@@ -3,6 +3,110 @@ import JSZip from 'jszip';
 import { jsPDF } from 'jspdf';
 import { PLATFORM_DIMS, LINKEDIN_DIMS, SAFE_ZONES } from '@/lib/types';
 
+interface CtaPillSnapshot {
+  key: string;
+  width: number;
+  height: number;
+  borderRadius: number;
+  paddingLeft: number;
+  backgroundColor: string;
+  color: string;
+  fontFamily: string;
+  fontSize: string;
+  fontWeight: string;
+  letterSpacing: string;
+  text: string;
+}
+
+function parsePx(value: string | null | undefined, fallback = 0): number {
+  const parsed = Number.parseFloat(value ?? '');
+  return Number.isFinite(parsed) ? parsed : fallback;
+}
+
+function collectCtaPillSnapshots(el: HTMLElement): Map<string, CtaPillSnapshot> {
+  const snapshots = new Map<string, CtaPillSnapshot>();
+  const pills = el.querySelectorAll<HTMLElement>('[data-cta-pill]');
+
+  pills.forEach(pill => {
+    const key = pill.dataset.ctaPill;
+    const label = pill.querySelector<HTMLElement>('[data-cta-label]');
+    if (!key || !label) return;
+
+    const text = label.textContent?.trim();
+    if (!text) return;
+
+    const pillRect = pill.getBoundingClientRect();
+    if (!pillRect.width || !pillRect.height) return;
+
+    const pillStyle = window.getComputedStyle(pill);
+    const labelStyle = window.getComputedStyle(label);
+
+    snapshots.set(key, {
+      key,
+      width: Math.ceil(pillRect.width),
+      height: Math.ceil(pillRect.height),
+      borderRadius: parsePx(pillStyle.borderTopLeftRadius, 14),
+      paddingLeft: parsePx(pillStyle.paddingLeft, 36),
+      backgroundColor: pillStyle.backgroundColor || '#C8A44E',
+      color: labelStyle.color || '#0F1B3D',
+      fontFamily: labelStyle.fontFamily || 'sans-serif',
+      fontSize: labelStyle.fontSize || '34px',
+      fontWeight: labelStyle.fontWeight || '700',
+      letterSpacing: labelStyle.letterSpacing === 'normal' ? '0px' : labelStyle.letterSpacing,
+      text,
+    });
+  });
+
+  return snapshots;
+}
+
+function replaceCloneCtaPills(documentClone: Document, snapshots: Map<string, CtaPillSnapshot>) {
+  snapshots.forEach(snapshot => {
+    const clonePill = documentClone.querySelector<HTMLElement>(`[data-cta-pill="${snapshot.key}"]`);
+    if (!clonePill) return;
+
+    const svg = documentClone.createElementNS('http://www.w3.org/2000/svg', 'svg');
+    svg.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
+    svg.setAttribute('width', `${snapshot.width}`);
+    svg.setAttribute('height', `${snapshot.height}`);
+    svg.setAttribute('viewBox', `0 0 ${snapshot.width} ${snapshot.height}`);
+    svg.setAttribute('aria-hidden', 'true');
+    svg.style.display = 'block';
+    svg.style.width = `${snapshot.width}px`;
+    svg.style.height = `${snapshot.height}px`;
+
+    const rect = documentClone.createElementNS('http://www.w3.org/2000/svg', 'rect');
+    rect.setAttribute('width', `${snapshot.width}`);
+    rect.setAttribute('height', `${snapshot.height}`);
+    rect.setAttribute('rx', `${snapshot.borderRadius}`);
+    rect.setAttribute('fill', snapshot.backgroundColor);
+
+    const text = documentClone.createElementNS('http://www.w3.org/2000/svg', 'text');
+    text.textContent = snapshot.text;
+    text.setAttribute('x', `${snapshot.paddingLeft}`);
+    text.setAttribute('y', `${snapshot.height / 2}`);
+    text.setAttribute('fill', snapshot.color);
+    text.setAttribute('font-family', snapshot.fontFamily);
+    text.setAttribute('font-size', snapshot.fontSize);
+    text.setAttribute('font-weight', snapshot.fontWeight);
+    text.setAttribute('letter-spacing', snapshot.letterSpacing);
+    text.setAttribute('dominant-baseline', 'middle');
+    text.setAttribute('text-anchor', 'start');
+    text.setAttribute('alignment-baseline', 'middle');
+
+    svg.append(rect, text);
+
+    clonePill.style.width = `${snapshot.width}px`;
+    clonePill.style.height = `${snapshot.height}px`;
+    clonePill.style.minHeight = `${snapshot.height}px`;
+    clonePill.style.display = 'block';
+    clonePill.style.padding = '0';
+    clonePill.style.background = 'transparent';
+    clonePill.style.borderRadius = '0';
+    clonePill.replaceChildren(svg);
+  });
+}
+
 async function waitForSlideAssets(el: HTMLElement): Promise<void> {
   if (typeof document !== 'undefined' && 'fonts' in document) {
     await document.fonts.ready;
@@ -111,6 +215,7 @@ async function captureSlide(
 
   const restoreLinkedIn = patchLinkedIn ? patchSlideForLinkedIn(el, slideId) : () => {};
   await waitForSlideAssets(el);
+  const ctaPills = collectCtaPillSnapshots(el);
 
   const canvas = await html2canvas(el, {
     width,
@@ -120,6 +225,9 @@ async function captureSlide(
     allowTaint: false,
     backgroundColor: null,
     logging: false,
+    onclone: documentClone => {
+      replaceCloneCtaPills(documentClone, ctaPills);
+    },
   });
 
   restoreLinkedIn();

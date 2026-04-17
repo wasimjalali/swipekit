@@ -158,15 +158,16 @@ export function SlidePreview({ slide, template, platform, totalSlides, scale = 1
             {slide.cta && (
               <div style={{ marginTop: 40, display: 'flex', flexDirection: 'column', gap: 16 }}>
                 {slide.cta.split('\n').filter(Boolean).map((line, idx) => (
-                  <div key={idx} style={{
+                  <div key={idx} data-cta-pill={`slide-${slide.id}-cta-${idx}`} style={{
                     display: 'inline-flex',
                     alignItems: 'center',
                     alignSelf: 'flex-start',
                     background: accentColor,
                     borderRadius: 14,
                     padding: '14px 36px',
+                    minHeight: 62,
                   }}>
-                    <span style={{
+                    <span data-cta-label style={{
                       display: 'block',
                       lineHeight: 1.2,
                       fontSize: 34, fontWeight: 700,
