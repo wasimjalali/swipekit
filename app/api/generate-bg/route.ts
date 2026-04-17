@@ -1,6 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
 
-export const maxDuration = 60;
+export const maxDuration = 120;
+
+// Retry transient upstream failures instead of permanently failing later slides in a long run.
+const RETRYABLE_STATUS_CODES = new Set([408, 429, 500, 502, 503, 504]);
+const MAX_FLUX_ATTEMPTS = 3;
+const BASE_RETRY_DELAY_MS = 3000;
 
 function buildFluxPrompt(visual_theme: string, template: string, accent_color: string): string {
   const colorGrade: Record<string, string> = {
@@ -18,6 +23,30 @@ function buildFluxPrompt(visual_theme: string, template: string, accent_color: s
     'Heavily blurred background with shallow depth of field, bokeh, editorial photography.',
     'No readable text, no words, no letters, no logos, no recognizable faces.',
   ].join(' ');
+}
+
+function sleep(ms: number) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+function parseRetryAfterMs(value: string | null): number | null {
+  if (!value) return null;
+
+  const seconds = Number.parseFloat(value);
+  if (Number.isFinite(seconds)) {
+    return Math.max(0, Math.ceil(seconds * 1000));
+  }
+
+  const retryDate = Date.parse(value);
+  if (Number.isFinite(retryDate)) {
+    return Math.max(0, retryDate - Date.now());
+  }
+
+  return null;
+}
+
+function buildRetryDelayMs(attempt: number, retryAfterHeader: string | null) {
+  return parseRetryAfterMs(retryAfterHeader) ?? (BASE_RETRY_DELAY_MS * attempt);
 }
 
 export async function POST(req: NextRequest) {
@@ -38,27 +67,50 @@ export async function POST(req: NextRequest) {
       ? endpoint  // env var already contains full URL
       : `${endpoint}/providers/blackforestlabs/v1/flux-2-pro?api-version=preview`;
 
-    const response = await fetch(url, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${process.env.AZURE_FOUNDRY_KEY!}`,
-      },
-      body: JSON.stringify({
-        model: 'FLUX.2-pro',
-        prompt,
-        width: imgWidth,
-        height: imgHeight,
-        n: 1,
-        prompt_upsampling: true,
-        guidance: 3.5,
-        steps: 30,
-      }),
-    });
+    let response: Response | null = null;
+    let errorText = 'Failed to generate background';
 
-    if (!response.ok) {
-      const error = await response.text();
-      return NextResponse.json({ error }, { status: response.status });
+    for (let attempt = 1; attempt <= MAX_FLUX_ATTEMPTS; attempt++) {
+      response = await fetch(url, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${process.env.AZURE_FOUNDRY_KEY!}`,
+        },
+        body: JSON.stringify({
+          model: 'FLUX.2-pro',
+          prompt,
+          width: imgWidth,
+          height: imgHeight,
+          n: 1,
+          prompt_upsampling: true,
+          guidance: 3.5,
+          steps: 30,
+        }),
+      });
+
+      if (response.ok) break;
+
+      errorText = await response.text();
+
+      console.error('FLUX generation failed', {
+        attempt,
+        status: response.status,
+        error: errorText.slice(0, 500),
+      });
+
+      if (!RETRYABLE_STATUS_CODES.has(response.status) || attempt === MAX_FLUX_ATTEMPTS) {
+        break;
+      }
+
+      await sleep(buildRetryDelayMs(attempt, response.headers.get('retry-after')));
+    }
+
+    if (!response?.ok) {
+      return NextResponse.json(
+        { error: errorText || 'FLUX background generation failed after retries' },
+        { status: response?.status ?? 500 },
+      );
     }
 
     const result = await response.json();

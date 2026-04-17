@@ -31,6 +31,7 @@ function KarkoLogo({ template }: { template: Template }) {
 export function SlidePreview({ slide, template, platform, totalSlides, scale = 1 }: SlidePreviewProps) {
   const colors = textColor[template];
   const accentColor = slide.accent_color || KARKO_BRAND.gold;
+  const ctaFillColor = template === 'karko-navy' ? KARKO_BRAND.gold400 : accentColor;
   const dims = PLATFORM_DIMS[platform] || PLATFORM_DIMS.instagram;
   const sz = SAFE_ZONES[platform] || SAFE_ZONES.instagram;
   const W = dims.w;
@@ -162,7 +163,7 @@ export function SlidePreview({ slide, template, platform, totalSlides, scale = 1
                     display: 'inline-flex',
                     alignItems: 'center',
                     alignSelf: 'flex-start',
-                    background: accentColor,
+                    background: ctaFillColor,
                     borderRadius: 14,
                     padding: '14px 36px',
                     minHeight: 62,

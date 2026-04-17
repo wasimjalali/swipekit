@@ -8,6 +8,12 @@ import { exportCarousel } from '@/lib/export';
 type Step = 'input' | 'structuring' | 'generating' | 'done';
 
 const STORAGE_KEY = 'slideco_session';
+// FLUX.2-pro low tier allows 15 RPM, so keep request starts ~4s apart for reliability.
+const FLUX_MIN_REQUEST_INTERVAL_MS = 4200;
+
+function sleep(ms: number) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
 
 function saveSession(data: { step: Step; carousel: CarouselConfig | null; content: string; exportName: string }) {
   try {
@@ -63,7 +69,45 @@ export default function Home() {
   const [regenerating, setRegenerating] = useState<number | null>(null);
   const [exportName, setExportName] = useState('');
   const abortRef = useRef(false);
+  const lastBgRequestStartedAtRef = useRef(0);
   const maxSlides = MAX_SLIDES[platform] || 5;
+
+  async function waitForFluxRequestSlot() {
+    const now = Date.now();
+    const elapsed = now - lastBgRequestStartedAtRef.current;
+
+    if (lastBgRequestStartedAtRef.current && elapsed < FLUX_MIN_REQUEST_INTERVAL_MS) {
+      await sleep(FLUX_MIN_REQUEST_INTERVAL_MS - elapsed);
+    }
+
+    lastBgRequestStartedAtRef.current = Date.now();
+  }
+
+  async function requestBackgroundImage(slide: Slide, selectedTemplate: Template, selectedPlatform: CarouselConfig['platform']) {
+    await waitForFluxRequestSlot();
+
+    const bgRes = await fetch('/api/generate-bg', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        visual_theme: slide.visual_theme,
+        template: selectedTemplate,
+        accent_color: slide.accent_color,
+        platform: selectedPlatform,
+      }),
+    });
+
+    const payload = await bgRes.json().catch(() => null);
+    if (!bgRes.ok) {
+      throw new Error(payload?.error || `Background generation failed (${bgRes.status})`);
+    }
+
+    if (!payload?.url) {
+      throw new Error('Background generation returned no image');
+    }
+
+    return payload.url as string;
+  }
 
   function handlePlatformChange(newPlatform: typeof platform) {
     setPlatform(newPlatform);
@@ -109,6 +153,7 @@ export default function Home() {
     setError('');
     setStep('structuring');
     abortRef.current = false;
+    lastBgRequestStartedAtRef.current = 0;
 
     try {
       const structRes = await fetch('/api/structure', {
@@ -142,27 +187,12 @@ export default function Home() {
         setCarousel({ ...config, slides: [...slides] });
 
         try {
-          if (i > 0) await new Promise(r => setTimeout(r, 300));
-
-          const bgRes = await fetch('/api/generate-bg', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              visual_theme: slides[i].visual_theme,
-              template: config.template,
-              accent_color: slides[i].accent_color,
-              platform: config.platform,
-            }),
-          });
-
-          if (bgRes.ok) {
-            const { url } = await bgRes.json();
-            slides[i] = { ...slides[i], background_url: url, status: 'done' };
-          } else {
-            slides[i] = { ...slides[i], status: 'error' };
-          }
-        } catch {
-          slides[i] = { ...slides[i], status: 'error' };
+          const url = await requestBackgroundImage(slides[i], config.template, config.platform);
+          slides[i] = { ...slides[i], background_url: url, error_message: undefined, status: 'done' };
+        } catch (err) {
+          const errorMessage = err instanceof Error ? err.message : 'Background generation failed';
+          console.error(`Slide ${slides[i].id} background generation failed`, errorMessage);
+          slides[i] = { ...slides[i], error_message: errorMessage, status: 'error' };
         }
 
         setProgress(i + 1);
@@ -188,25 +218,12 @@ export default function Home() {
     setCarousel({ ...carousel, slides: [...slides] });
 
     try {
-      const bgRes = await fetch('/api/generate-bg', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          visual_theme: slides[idx].visual_theme,
-          template: carousel.template,
-          accent_color: slides[idx].accent_color,
-          platform: carousel.platform,
-        }),
-      });
-
-      if (bgRes.ok) {
-        const { url } = await bgRes.json();
-        slides[idx] = { ...slides[idx], background_url: url, status: 'done' };
-      } else {
-        slides[idx] = { ...slides[idx], status: 'error' };
-      }
-    } catch {
-      slides[idx] = { ...slides[idx], status: 'error' };
+      const url = await requestBackgroundImage(slides[idx], carousel.template, carousel.platform);
+      slides[idx] = { ...slides[idx], background_url: url, error_message: undefined, status: 'done' };
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Background generation failed';
+      console.error(`Slide ${slides[idx].id} background regeneration failed`, errorMessage);
+      slides[idx] = { ...slides[idx], error_message: errorMessage, status: 'error' };
     }
 
     setCarousel({ ...carousel, slides: [...slides] });
@@ -619,7 +636,12 @@ export default function Home() {
                     <span style={{ fontSize: 12, color: KARKO_BRAND.warmGray }}>Slide {slide.id}</span>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                       {slide.status === 'error' && (
-                        <span style={{ fontSize: 12, color: '#DC2626' }}>Error</span>
+                        <span
+                          title={slide.error_message || 'Background generation failed'}
+                          style={{ fontSize: 12, color: '#DC2626' }}
+                        >
+                          Error
+                        </span>
                       )}
                       {step === 'done' && (
                         <button

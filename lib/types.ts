@@ -12,6 +12,7 @@ export interface Slide {
   visual_theme: string;    // Sent to FLUX as part of background prompt
   accent_color: string;    // Hex color for text accents + dots
   background_url?: string; // Base64 data URL after generation
+  error_message?: string;  // Optional background generation failure detail
   status: 'pending' | 'generating' | 'done' | 'error';
 }
 
