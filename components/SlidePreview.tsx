@@ -135,7 +135,7 @@ export function SlidePreview({ slide, template, platform, totalSlides, scale = 1
               color: colors.muted,
               maxWidth: 840,
               margin: 0,
-              marginTop: 28,
+              marginTop: 40,
             }}>
               {slide.subtext}
             </p>
@@ -144,7 +144,7 @@ export function SlidePreview({ slide, template, platform, totalSlides, scale = 1
             {slide.body && !slide.cta && (
               <p style={{
                 margin: 0,
-                marginTop: 28, fontSize: 34, lineHeight: 1.5,
+                marginTop: 36, fontSize: 34, lineHeight: 1.5,
                 color: accentColor,
                 maxWidth: 800,
                 fontWeight: 600,
@@ -157,7 +157,7 @@ export function SlidePreview({ slide, template, platform, totalSlides, scale = 1
 
             {/* CTA — last slide only, each line rendered separately */}
             {slide.cta && (
-              <div style={{ marginTop: 40, display: 'flex', flexDirection: 'column', gap: 16 }}>
+              <div style={{ marginTop: 56, display: 'flex', flexDirection: 'column', gap: 20 }}>
                 {slide.cta.split('\n').filter(Boolean).map((line, idx) => (
                   <div key={idx} data-cta-pill={`slide-${slide.id}-cta-${idx}`} style={{
                     display: 'inline-flex',
