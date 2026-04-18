@@ -48,6 +48,31 @@ Within each slide, the text lines map as follows:
   goes in the "cta" field ONLY. The body field must be empty on the CTA slide because
   the UI renders the CTA as a button — any text in "body" would be duplicated.
 
+CHARACTER LIMITS — CRITICAL FOR LAYOUT:
+Headlines render at large font sizes. Long headlines overflow the slide. You MUST respect
+these limits. If the user's text exceeds the limit, split it: keep the first natural phrase
+in "headline" and move the overflow into "subtext". NEVER truncate or reword — just reposition.
+
+  Instagram (1080×1440, 3:4 portrait — more vertical room):
+    headline: max 60 characters (≈4 lines). Ideal ≤45 chars.
+    subtext:  max 100 characters (≈3 lines).
+    body:     max 80 characters.
+    cta:      max 45 characters per line.
+
+  LinkedIn (1080×1080, 1:1 square — tighter layout):
+    headline: max 50 characters (≈3 lines). Ideal ≤40 chars.
+    subtext:  max 80 characters (≈2-3 lines).
+    body:     max 70 characters.
+    cta:      max 40 characters per line.
+
+  "both" platform: use the STRICTER LinkedIn limits so content fits both formats.
+
+If a headline is too long, find the best natural break and split:
+  Too long: headline "Karko AI tailors your CV to the job description in about 90 seconds."
+  Fixed:    headline "Karko AI tailors your CV in about 90 seconds."
+            subtext  "Matched to the job description — using your real experience."
+  (The meaning is preserved. Words are repositioned, not removed.)
+
 NEVER output any of these as visible slide text:
 - "Slide 1", "Slide 2", etc.
 - "Title:", "Subtitle:", "Headline:", "Body:", etc.

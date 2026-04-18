@@ -1,8 +1,23 @@
-# Karko AI Carousel — Script Format Guide
+# Karko AI — Script Format
 
-## Overview
+Write your script in plain text. The AI maps your exact words onto slides — it won't rewrite or paraphrase anything.
 
-Write your carousel script in plain text using the structure below. The AI will map your exact words onto slides — it will **not** rewrite, shorten, or paraphrase anything.
+Labels like `Slide 1`, `Title:`, `Subtitle:` are stripped automatically — only the text after them appears on slides.
+
+---
+
+## Platform Limits
+
+| | Instagram | LinkedIn |
+|---|---|---|
+| **Slides** | 5 max | 8 max |
+| **Aspect ratio** | 3:4 portrait (1080×1440) | 1:1 square (1080×1080) |
+| **Headline** | ≤60 chars (~4 lines) | ≤50 chars (~3 lines) |
+| **Subtext** | ≤100 chars | ≤80 chars |
+| **Body** | ≤80 chars | ≤70 chars |
+| **CTA (per line)** | ≤45 chars | ≤40 chars |
+
+> **Both platforms?** Use the stricter LinkedIn limits so content fits everywhere.
 
 ---
 
@@ -11,134 +26,89 @@ Write your carousel script in plain text using the structure below. The AI will 
 ```
 Slide 1
 Title:
-[Your headline — the big, bold text]
+[Headline — short, punchy, ≤6-7 words ideal]
 Subtitle:
-[Your supporting line — smaller text below the headline]
-[Any extra lines become body text — italic accent color]
+[Supporting line]
+[Optional body — cliffhanger or closer, italic]
 
 Slide 2
 Title:
 [Headline]
 Subtitle:
 [Supporting line]
-[Optional body lines]
+[Optional body]
 
-Slide 3
+...
+
+Last Slide
 Title:
 [Headline]
 Subtitle:
 [Supporting line]
-[Optional body lines]
-
-Slide 4
-Title:
-[Headline]
-Subtitle:
-[Supporting line]
-[Optional body lines]
-
-Slide 5
-Title:
-[Headline]
-Subtitle:
-[Supporting line]
-[CTA — e.g. "Try Karko today → karkoai.com"]
+[CTA line 1 — e.g. "Try it free → karkoai.com"]
+[CTA line 2 — e.g. "Save this for your job search."]
 ```
 
 ---
 
-## Field Breakdown
+## Fields
 
-| Field | Maps to | Max Characters | Notes |
-|-------|---------|---------------|-------|
-| **Title** | Headline (biggest text) | ~50 chars | Short, punchy. 1-2 lines max on the slide. |
-| **Subtitle** | Subtext (medium text) | ~120 chars | 1-3 sentences. Supporting detail. |
-| **Extra lines** | Body (italic accent text) | ~100 chars | Cliffhangers, closers, trust lines. Optional. |
-| **Slide 5 extra line** | CTA button | ~40 chars | Only on the last slide. Becomes a gold button. |
-
-### Character Limits Explained
-
-These aren't hard limits — they're guidelines to prevent text from overflowing or getting too small on the 1080x1080 slide:
-
-- **Headline (Title):** Aim for under 50 characters. Longer headlines wrap to 3+ lines and shrink visually.
-- **Subtext (Subtitle):** Up to ~120 characters works well. Two short sentences is ideal.
-- **Body lines:** Keep under 100 characters. These render in a smaller italic font.
-- **CTA:** Keep short — it's rendered as a button. "Try Karko → karkoai.com" is perfect.
+| Field | Renders as | Notes |
+|---|---|---|
+| **Title** | Headline (biggest text) | Short and punchy. |
+| **Subtitle** | Subtext (medium text) | 1-2 sentences. |
+| **Extra lines** | Body (italic accent) | Cliffhangers, closers. Optional. |
+| **Last slide extras** | CTA buttons | Each line = one button. |
 
 ---
 
-## What Gets Stripped
-
-The AI removes these structural labels automatically — they **won't** appear on slides:
-
-- `Slide 1`, `Slide 2`, etc.
-- `Title:`, `Subtitle:`, `Headline:`, `Body:`, `CTA:`
-- Numbering like `1.`, `2.` used for structure
-
-Only the text **after** the label is used.
-
----
-
-## Slide Types
-
-The AI assigns a slide type based on content:
-
-| Slide | Typical Type | Purpose |
-|-------|-------------|---------|
-| Slide 1 | `cover` | The hook — grabs attention, makes them stop scrolling |
-| Slide 2-3 | `point` / `stat` | The problem, pain point, or surprising data |
-| Slide 4 | `point` / `quote` | The solution, your product, the shift |
-| Slide 5 | `cta` | Call to action — button with link/action |
-
----
-
-## Example Script
+## Example (Instagram, 5 slides)
 
 ```
 Slide 1
 Title:
-50 applications sent. 3 replies.
+50 applications. 3 replies.
 Subtitle:
-It's not your experience. It's not your qualifications.
-It's something most applicants never fix. Keep swiping.
+It's not your experience — it's something most applicants never fix.
+Keep swiping.
 
 Slide 2
 Title:
 The first gate isn't a recruiter.
 Subtitle:
 75% of CVs are rejected before a human ever reads them.
-ATS software scans for exact keywords first. You're writing for people — but the first reader is a machine.
+The first reader is a machine.
 
 Slide 3
 Title:
-One tailored application takes 45-60 minutes.
+One tailored CV takes 45 minutes.
 Subtitle:
-Send 1 great app per day — too slow to scale. Send 20 generic ones — get ghosted.
-There is a third option. And it takes 90 seconds.
+Send 1 great app per day — too slow. Send 20 generic ones — ghosted.
+There is a third option.
 
 Slide 4
 Title:
-Meet Karko — your AI career assistant.
+Meet Karko — your AI career tool.
 Subtitle:
-Karko reads the job description, then instantly creates a tailored, ATS-optimized CV, cover letter, and application email.
+It reads the job description, then creates a tailored, ATS-optimized CV in 90 seconds.
 We built it because we needed it ourselves.
 
 Slide 5
 Title:
-Get more interviews. Start in 2 minutes.
+Get more interviews. Start now.
 Subtitle:
-No credit card needed. Cancel anytime.
-Try Karko today → karkoai.com
+No credit card needed.
+Try Karko free → karkoai.com
+Save this for your job search.
+Comment "LINK" and I'll send you the link.
 ```
 
 ---
 
-## Tips for Strong Carousel Scripts
+## Quick Tips
 
-1. **Slide 1 — Hook hard.** Use a number, a bold claim, or a relatable pain. Make them stop scrolling.
-2. **Slide 2-3 — Build tension.** Each slide should make them *need* to swipe. End with a cliffhanger or surprising fact.
-3. **Slide 4 — Reveal the solution.** Introduce your product/idea. Be specific about what it does.
-4. **Slide 5 — Clear CTA.** One action. One link. Remove friction ("No credit card", "Free", "2 minutes").
-5. **Keep headlines short.** Under 6-7 words is ideal for maximum visual impact.
-6. **Use the body line for cliffhangers.** Lines like "Keep swiping." or "There is a third option." create tension.
-7. **Write for the format.** Each slide is one screen — one idea per slide. Don't cram.
+1. **Slide 1 — Hook hard.** Number, bold claim, or relatable pain.
+2. **Middle slides — Build tension.** End with a cliffhanger to drive swipes.
+3. **Second-to-last — Reveal the solution.** Be specific about what it does.
+4. **Last slide — Clear CTA.** One action, one link, remove friction.
+5. **Headlines under 7 words** have the most visual impact.
