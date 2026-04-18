@@ -38,6 +38,7 @@ export function SlidePreview({ slide, template, platform, totalSlides, scale = 1
   const H = dims.h;
   const isLastSlide = slide.id === totalSlides;
   const isCover = slide.type === 'cover';
+  const isIg = platform !== 'linkedin';
   const contentWidth = W - sz.left - sz.right;
 
   return (
@@ -108,7 +109,7 @@ export function SlidePreview({ slide, template, platform, totalSlides, scale = 1
             {slide.eyebrow && (
               <p style={{
                 margin: 0,
-                marginBottom: 20,
+                marginBottom: isIg ? 28 : 20,
                 fontSize: 28, color: accentColor,
                 letterSpacing: '0.14em', textTransform: 'uppercase',
                 fontWeight: 700,
@@ -120,7 +121,7 @@ export function SlidePreview({ slide, template, platform, totalSlides, scale = 1
             {/* Headline */}
             <h1 style={{
               margin: 0,
-              fontSize: isCover ? 104 : 90,
+              fontSize: isCover ? (isIg ? 112 : 104) : (isIg ? 96 : 90),
               fontWeight: 800,
               lineHeight: 1.08,
               color: colors.primary,
@@ -131,11 +132,11 @@ export function SlidePreview({ slide, template, platform, totalSlides, scale = 1
 
             {/* Subtext */}
             <p style={{
-              fontSize: 42, lineHeight: 1.45,
+              fontSize: isIg ? 44 : 42, lineHeight: 1.45,
               color: colors.muted,
               maxWidth: 840,
               margin: 0,
-              marginTop: 40,
+              marginTop: isIg ? 52 : 40,
             }}>
               {slide.subtext}
             </p>
@@ -144,7 +145,7 @@ export function SlidePreview({ slide, template, platform, totalSlides, scale = 1
             {slide.body && !slide.cta && (
               <p style={{
                 margin: 0,
-                marginTop: 36, fontSize: 34, lineHeight: 1.5,
+                marginTop: isIg ? 48 : 36, fontSize: 34, lineHeight: 1.5,
                 color: accentColor,
                 maxWidth: 800,
                 fontWeight: 600,
@@ -157,7 +158,7 @@ export function SlidePreview({ slide, template, platform, totalSlides, scale = 1
 
             {/* CTA — last slide only, each line rendered separately */}
             {slide.cta && (
-              <div style={{ marginTop: 56, display: 'flex', flexDirection: 'column', gap: 20 }}>
+              <div style={{ marginTop: isIg ? 72 : 56, display: 'flex', flexDirection: 'column', gap: isIg ? 24 : 20 }}>
                 {slide.cta.split('\n').filter(Boolean).map((line, idx) => (
                   <div key={idx} data-cta-pill={`slide-${slide.id}-cta-${idx}`} style={{
                     display: 'inline-flex',
