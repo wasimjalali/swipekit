@@ -1,4 +1,4 @@
-# Karko AI — Script Format
+# Script Format
 
 Write your script in plain text. The AI maps your exact words onto slides — it won't rewrite or paraphrase anything.
 
@@ -45,7 +45,7 @@ Title:
 [Headline]
 Subtitle:
 [Supporting line]
-[CTA line 1 — e.g. "Try it free → karkoai.com"]
+[CTA line 1 — e.g. "Try it free → yourbrand.com"]
 [CTA line 2 — e.g. "Save this for your job search."]
 ```
 
@@ -88,7 +88,7 @@ There is a third option.
 
 Slide 4
 Title:
-Meet Karko — your AI career tool.
+Meet Acme — your AI career tool.
 Subtitle:
 It reads the job description, then creates a tailored, ATS-optimized CV in 90 seconds.
 We built it because we needed it ourselves.
@@ -98,7 +98,7 @@ Title:
 Get more interviews. Start now.
 Subtitle:
 No credit card needed.
-Try Karko free → karkoai.com
+Try Acme free → acme.com
 Save this for your job search.
 Comment "LINK" and I'll send you the link.
 ```
