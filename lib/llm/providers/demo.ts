@@ -5,6 +5,7 @@ import type {
   TextProvider,
   TextStructureInput,
 } from '../types';
+import { brand } from '@/brand.config';
 
 interface CarouselUserSettings {
   template?: string;
@@ -102,14 +103,26 @@ function parseUserSettings(userPrompt: string): CarouselUserSettings {
   return settings;
 }
 
-function pickAccent(template: string | undefined): string {
-  if (template === 'karko-cream') return '#0F1B3D';
-  return '#C8A44E';
+function resolveTemplate(raw: string | undefined): 'primary' | 'secondary' {
+  if (!raw) return brand.defaultTheme;
+  const normalized = raw.toLowerCase().trim();
+  // Match either the theme key or the theme label so older "Template: Cream" prompts still resolve.
+  if (normalized === 'secondary' || normalized === brand.themes.secondary.label.toLowerCase()) {
+    return 'secondary';
+  }
+  if (normalized === 'primary' || normalized === brand.themes.primary.label.toLowerCase()) {
+    return 'primary';
+  }
+  return brand.defaultTheme;
+}
+
+function pickAccent(template: 'primary' | 'secondary'): string {
+  return brand.themes[template].accent;
 }
 
 function buildMockCarousel(userPrompt: string) {
   const settings = parseUserSettings(userPrompt);
-  const template = settings.template === 'karko-cream' ? 'karko-cream' : 'karko-navy';
+  const template = resolveTemplate(settings.template);
   const platform =
     settings.platform === 'instagram' || settings.platform === 'linkedin' || settings.platform === 'both'
       ? settings.platform

@@ -41,47 +41,65 @@ The default config runs in **demo mode** with no API keys required — you get d
 
 Brand identity lives in `brand.config.ts` at the repo root. Edit it once and the entire app — UI chrome, slide chrome, generated backgrounds, exported assets — picks up your colors, logo, and tone.
 
-The shape:
+The shape (see `lib/brand.ts` for the full type):
 
 ```ts
-export const brand = {
+import type { BrandConfig } from './lib/brand';
+
+export const brand: BrandConfig = {
   name: 'Acme',
-  domain: 'acme.com',
-  tone: 'confident, plainspoken, slightly irreverent',
-  cta: 'Try Acme free → acme.com',
+  url: 'acme.com',
+  domain: 'general-purpose content',
+  tone: 'clear, confident, and concise',
+
+  defaultTheme: 'primary',
+
   themes: {
-    'navy': {
-      name: 'Navy',
-      bg: '#0F1B3D',
+    primary: {                         // the dark theme
+      label: 'Navy',                   // shown in the UI theme picker
+      background: '#0F1B3D',
       accent: '#C8A44E',
       text: '#FFFFFF',
+      // …textMuted, overlay, ctaFill, fluxColorGrade, fallbackPalette, etc.
     },
-    'cream': {
-      name: 'Cream',
-      bg: '#FAF8F5',
+    secondary: {                       // the light theme
+      label: 'Cream',
+      background: '#FAF8F5',
       accent: '#0F1B3D',
-      text: '#2D3748',
+      text: '#0F1B3D',
+      // …
     },
   },
-  logoLight: `<svg ...>`, // shown on dark backgrounds
-  logoDark:  `<svg ...>`, // shown on light backgrounds
+
+  logo: {
+    light: `<svg …>`,                  // shown on dark backgrounds
+    dark:  `<svg …>`,                  // shown on light backgrounds
+  },
+
+  // ui colours for the dashboard chrome (not the slides)
+  ui: { pageBackground: '#FAF8F5', /* … */ },
 };
 ```
 
-You can ship any number of themes. The first key becomes the default selection in the UI.
+The two theme keys (`primary` / `secondary`) are fixed — they map to the dark/light theme picker in the UI and the system prompt's accent-color rules. You can change everything *inside* each theme, including its display label.
 
 ## LLM providers
 
-<!-- TODO: confirm env var names once lib/llm/ is in place. Table below reflects the planned adapter set. -->
+The text and image providers are pluggable via env vars, and **demo mode is the default** so the app boots without any keys.
 
-| Provider | `LLM_PROVIDER` | Required env vars |
+| `LLM_PROVIDER` | Provider | Required env vars |
 |---|---|---|
-| Demo (no key) | `demo` | — |
-| Azure OpenAI | `azure-openai` | `AZURE_OPENAI_KEY`, `AZURE_OPENAI_ENDPOINT`, `AZURE_OPENAI_DEPLOYMENT` |
-| OpenAI | `openai` | `OPENAI_API_KEY`, optional `OPENAI_MODEL` |
-| Anthropic | `anthropic` | `ANTHROPIC_API_KEY`, optional `ANTHROPIC_MODEL` |
+| `demo` *(default)* | Mock text — deterministic placeholder slides | — |
+| `azure` | Azure OpenAI (or any OpenAI-compatible base URL) | `AZURE_OPENAI_KEY`, `AZURE_OPENAI_ENDPOINT`, `AZURE_OPENAI_DEPLOYMENT` |
+| `openai` | OpenAI public API | `OPENAI_API_KEY`, optional `OPENAI_MODEL` (default `gpt-4o-mini`) |
+| `anthropic` | Anthropic Messages API | `ANTHROPIC_API_KEY`, optional `ANTHROPIC_MODEL` (default `claude-opus-4-7`) |
 
-Image generation is selected separately via `IMAGE_PROVIDER` (`demo`, `azure-foundry`, or `openai`). See `.env.example` for the full list of variables and `lib/llm/README.md` for adapter internals.
+| `IMAGE_PROVIDER` | Provider | Required env vars |
+|---|---|---|
+| `demo` *(default)* | Mock image — hashed gradient SVG | — |
+| `azure-flux` | FLUX.2-pro via Azure AI Foundry | `AZURE_FOUNDRY_KEY`, `AZURE_FOUNDRY_ENDPOINT` |
+
+See `.env.example` for a copy-pasteable starter and `lib/llm/README.md` for adapter internals and how to add your own provider.
 
 ## Architecture
 

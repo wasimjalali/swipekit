@@ -1,14 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { brand } from '@/brand.config';
 import type { ThemeKey } from '@/lib/brand';
+import { getImageProvider } from '@/lib/llm';
 
 export const maxDuration = 120;
-
-// Retry transient upstream failures instead of permanently failing later slides in a long run.
-const RETRYABLE_STATUS_CODES = new Set([408, 429, 500, 502, 503, 504]);
-const MAX_FLUX_ATTEMPTS = 3;
-const BASE_RETRY_DELAY_MS = 3000;
-const SAFETY_REJECTION_PATTERN = /content rejected|violence detection|content filter|safety/i;
 
 function resolveTheme(template: string) {
   const key = (template === 'primary' || template === 'secondary') ? template as ThemeKey : 'primary';
@@ -25,46 +20,6 @@ function buildFluxPrompt(visual_theme: string, template: string): string {
     'Calm professional atmosphere only. No violence, no conflict, no weapons, no injury, no blood, no fire, no destruction, no threatening scenes.',
     'No readable text, no words, no letters, no logos, no recognizable faces.',
   ].join(' ');
-}
-
-function buildSafetyFallbackPrompt(template: string): string {
-  const theme = resolveTheme(template);
-
-  return [
-    'Calm softly blurred professional workspace, elegant desk surface, subtle laptop silhouette, abstract depth of field, premium editorial photography.',
-    theme.fluxFallbackColorGrade,
-    'Peaceful non-threatening composition with gentle studio lighting and minimal shapes.',
-    'No people, no faces, no hands, no vehicles, no roads, no conflict, no danger, no weapons, no injury, no destruction, no fire, no blood.',
-    'No readable text, no letters, no logos, no brand names.',
-  ].join(' ');
-}
-
-function sleep(ms: number) {
-  return new Promise(resolve => setTimeout(resolve, ms));
-}
-
-function parseRetryAfterMs(value: string | null): number | null {
-  if (!value) return null;
-
-  const seconds = Number.parseFloat(value);
-  if (Number.isFinite(seconds)) {
-    return Math.max(0, Math.ceil(seconds * 1000));
-  }
-
-  const retryDate = Date.parse(value);
-  if (Number.isFinite(retryDate)) {
-    return Math.max(0, retryDate - Date.now());
-  }
-
-  return null;
-}
-
-function buildRetryDelayMs(attempt: number, retryAfterHeader: string | null) {
-  return parseRetryAfterMs(retryAfterHeader) ?? (BASE_RETRY_DELAY_MS * attempt);
-}
-
-function isSafetyRejection(status: number, errorText: string) {
-  return status === 400 && SAFETY_REJECTION_PATTERN.test(errorText);
 }
 
 function createFallbackBackgroundDataUrl(template: string, isPortrait: boolean) {
@@ -100,107 +55,36 @@ function createFallbackBackgroundDataUrl(template: string, isPortrait: boolean) 
   return `data:image/svg+xml;base64,${Buffer.from(svg).toString('base64')}`;
 }
 
-async function requestFluxImage(url: string, prompt: string, width: number, height: number) {
-  return fetch(url, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${process.env.AZURE_FOUNDRY_KEY!}`,
-    },
-    body: JSON.stringify({
-      model: 'FLUX.2-pro',
-      prompt,
-      width,
-      height,
-      n: 1,
-      prompt_upsampling: true,
-      guidance: 3.5,
-      steps: 30,
-    }),
-  });
-}
-
 export async function POST(req: NextRequest) {
   try {
     const { visual_theme, template, platform } = await req.json();
 
     const prompt = buildFluxPrompt(visual_theme, template);
-
-    // Platform-specific image dimensions (FLUX supports these sizes)
     const isPortrait = platform === 'instagram' || platform === 'both';
     const imgWidth = 1024;
-    const imgHeight = isPortrait ? 1365 : 1024;  // 3:4 for Instagram, 1:1 for LinkedIn
+    const imgHeight = isPortrait ? 1365 : 1024;
 
-    // AZURE_FOUNDRY_ENDPOINT should be the base URL (e.g. https://slideco-resource.services.ai.azure.com)
-    // The full path is appended here
-    const endpoint = process.env.AZURE_FOUNDRY_ENDPOINT!;
-    const url = endpoint.includes('/providers/')
-      ? endpoint  // env var already contains full URL
-      : `${endpoint}/providers/blackforestlabs/v1/flux-2-pro?api-version=preview`;
+    const provider = getImageProvider();
+    const result = await provider.generate({
+      prompt,
+      width: imgWidth,
+      height: imgHeight,
+      template,
+    });
 
-    let response: Response | null = null;
-    let errorText = 'Failed to generate background';
-    let currentPrompt = prompt;
-    let usedSafetyFallbackPrompt = false;
-    let sawSafetyRejection = false;
-
-    for (let attempt = 1; attempt <= MAX_FLUX_ATTEMPTS; attempt++) {
-      response = await requestFluxImage(url, currentPrompt, imgWidth, imgHeight);
-
-      if (response.ok) break;
-
-      errorText = await response.text();
-
-      console.error('FLUX generation failed', {
-        attempt,
-        status: response.status,
-        error: errorText.slice(0, 500),
+    // If the upstream model safety-filtered the prompt, return our own brand-aware
+    // SVG fallback rather than the provider's generic one.
+    if (result.safetyFiltered) {
+      return NextResponse.json({
+        url: createFallbackBackgroundDataUrl(template, isPortrait),
+        warning: 'content_safety_fallback',
       });
-
-      if (isSafetyRejection(response.status, errorText)) {
-        sawSafetyRejection = true;
-
-        if (!usedSafetyFallbackPrompt) {
-          currentPrompt = buildSafetyFallbackPrompt(template);
-          usedSafetyFallbackPrompt = true;
-          continue;
-        }
-
-        break;
-      }
-
-      if (!RETRYABLE_STATUS_CODES.has(response.status) || attempt === MAX_FLUX_ATTEMPTS) {
-        break;
-      }
-
-      await sleep(buildRetryDelayMs(attempt, response.headers.get('retry-after')));
     }
 
-    if (!response?.ok) {
-      if (sawSafetyRejection) {
-        return NextResponse.json({
-          url: createFallbackBackgroundDataUrl(template, isPortrait),
-          warning: 'content_safety_fallback',
-          error: errorText || 'Background replaced with a safe fallback after content filtering',
-        });
-      }
-
-      return NextResponse.json(
-        { error: errorText || 'FLUX background generation failed after retries' },
-        { status: response?.status ?? 500 },
-      );
-    }
-
-    const result = await response.json();
-
-    if (!result.data?.[0]?.b64_json) {
-      return NextResponse.json({ error: 'Unexpected FLUX response format', result }, { status: 500 });
-    }
-
-    const dataUrl = `data:image/png;base64,${result.data[0].b64_json}`;
-    return NextResponse.json({ url: dataUrl });
+    return NextResponse.json({ url: result.dataUrl });
   } catch (err) {
     console.error('Generate BG error:', err);
-    return NextResponse.json({ error: 'Failed to generate background' }, { status: 500 });
+    const message = err instanceof Error ? err.message : 'Failed to generate background';
+    return NextResponse.json({ error: message }, { status: 500 });
   }
 }

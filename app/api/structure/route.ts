@@ -1,4 +1,3 @@
-import OpenAI from 'openai';
 import { NextRequest, NextResponse } from 'next/server';
 import { brand } from '@/brand.config';
 import { THEME_KEYS } from '@/lib/types';
@@ -6,13 +5,9 @@ import {
   buildStructureSystemPrompt,
   buildStructureUserPrompt,
 } from '@/lib/prompts/structure';
+import { getTextProvider } from '@/lib/llm';
 
 const SYSTEM_PROMPT = buildStructureSystemPrompt(brand);
-
-const client = new OpenAI({
-  apiKey: process.env.AZURE_OPENAI_KEY!,
-  baseURL: process.env.AZURE_OPENAI_ENDPOINT!,
-});
 
 function buildCarouselSchema(slideCount: number) {
   return {
@@ -55,38 +50,27 @@ export async function POST(req: NextRequest) {
     const { content, template, platform, brand_color, slideCount: rawCount } = await req.json();
     const slideCount = Math.max(1, Math.min(8, Number(rawCount) || 5));
 
-    const response = await client.chat.completions.create({
-      model: process.env.AZURE_OPENAI_DEPLOYMENT!,
-      messages: [
-        { role: 'system', content: SYSTEM_PROMPT },
-        {
-          role: 'user',
-          content: buildStructureUserPrompt({
-            content,
-            template,
-            platform,
-            slideCount,
-            brand_color,
-            brand,
-          }),
-        },
-      ],
-      response_format: {
-        type: 'json_schema',
-        json_schema: {
-          name: 'carousel_config',
-          schema: buildCarouselSchema(slideCount),
-          strict: true,
-        },
-      },
-      max_tokens: 4000,
+    const provider = getTextProvider();
+    const result = await provider.structure({
+      systemPrompt: SYSTEM_PROMPT,
+      userPrompt: buildStructureUserPrompt({
+        content,
+        template,
+        platform,
+        slideCount,
+        brand_color,
+        brand,
+      }),
+      jsonSchema: buildCarouselSchema(slideCount),
+      schemaName: 'carousel_config',
+      maxTokens: 4000,
       temperature: 0.3,
     });
 
-    const result = JSON.parse(response.choices[0].message.content!);
     return NextResponse.json(result);
   } catch (err) {
     console.error('Structure API error:', err);
-    return NextResponse.json({ error: 'Failed to structure content' }, { status: 500 });
+    const message = err instanceof Error ? err.message : 'Failed to structure content';
+    return NextResponse.json({ error: message }, { status: 500 });
   }
 }
