@@ -1,7 +1,21 @@
 {
-  "name": "slideforge",
+  "name": "carousel-forge",
   "version": "0.1.0",
   "private": true,
+  "description": "AI-powered LinkedIn and Instagram carousel generator. Bring your own brand.",
+  "keywords": [
+    "carousel",
+    "linkedin",
+    "instagram",
+    "ai",
+    "nextjs"
+  ],
+  "author": "Wasim Jalali",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/wasimjalali/carousel-forge.git"
+  },
   "scripts": {
     "dev": "next dev",
     "build": "next build",

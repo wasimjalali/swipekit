@@ -1,23 +1,23 @@
 @import "tailwindcss";
 
 :root {
-  --karko-navy: #0F1B3D;
-  --karko-gold: #C8A44E;
-  --karko-gold-bright: #E8B84D;
-  --karko-cream: #FAF8F5;
-  --karko-cream-100: #FAF7F2;
-  --karko-cream-50: #FEFDFB;
-  --karko-navy-600: #1E3A5F;
-  --karko-navy-700: #182F4D;
-  --karko-navy-800: #12243B;
-  --karko-gold-400: #D4A853;
-  --karko-gold-500: #C4932E;
-  --karko-gold-600: #A37824;
-  --karko-charcoal: #2D3748;
-  --karko-warm-gray: #6B7280;
+  --brand-navy: #0F1B3D;
+  --brand-gold: #C8A44E;
+  --brand-gold-bright: #E8B84D;
+  --brand-cream: #FAF8F5;
+  --brand-cream-100: #FAF7F2;
+  --brand-cream-50: #FEFDFB;
+  --brand-navy-600: #1E3A5F;
+  --brand-navy-700: #182F4D;
+  --brand-navy-800: #12243B;
+  --brand-gold-400: #D4A853;
+  --brand-gold-500: #C4932E;
+  --brand-gold-600: #A37824;
+  --brand-charcoal: #2D3748;
+  --brand-warm-gray: #6B7280;
 
-  --background: var(--karko-cream);
-  --foreground: var(--karko-charcoal);
+  --background: var(--brand-cream);
+  --foreground: var(--brand-charcoal);
 }
 
 @theme inline {

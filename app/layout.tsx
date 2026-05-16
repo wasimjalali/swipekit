@@ -12,9 +12,10 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
+// TODO: read from brand.config.ts once the brand-agnostic refactor lands.
 export const metadata: Metadata = {
-  title: "Karko AI — Carousel Generator",
-  description: "Karko AI carousel generator for Instagram & LinkedIn",
+  title: "Carousel Generator",
+  description: "AI-powered LinkedIn and Instagram carousel generator",
 };
 
 export default function RootLayout({
