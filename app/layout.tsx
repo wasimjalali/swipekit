@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
+import { brand } from "@/brand.config";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -13,8 +14,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Karko AI — Carousel Generator",
-  description: "Karko AI carousel generator for Instagram & LinkedIn",
+  title: `${brand.name} — Carousel Generator`,
+  description: `${brand.name} carousel generator for Instagram & LinkedIn`,
 };
 
 export default function RootLayout({

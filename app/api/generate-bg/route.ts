@@ -1,4 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { brand } from '@/brand.config';
+import type { ThemeKey } from '@/lib/brand';
 
 export const maxDuration = 120;
 
@@ -8,19 +10,17 @@ const MAX_FLUX_ATTEMPTS = 3;
 const BASE_RETRY_DELAY_MS = 3000;
 const SAFETY_REJECTION_PATTERN = /content rejected|violence detection|content filter|safety/i;
 
-function buildFluxPrompt(visual_theme: string, template: string, accent_color: string): string {
-  const colorGrade: Record<string, string> = {
-    'karko-navy':
-      'Color graded in deep midnight navy and dark blue-black tones with warm gold accent lighting. ' +
-      'Dark moody atmosphere, cinematic shadows.',
-    'karko-cream':
-      'Color graded in warm ivory cream and soft champagne tones with golden hour warmth. ' +
-      'Light airy atmosphere, soft luminous highlights.',
-  };
+function resolveTheme(template: string) {
+  const key = (template === 'primary' || template === 'secondary') ? template as ThemeKey : 'primary';
+  return brand.themes[key];
+}
+
+function buildFluxPrompt(visual_theme: string, template: string): string {
+  const theme = resolveTheme(template);
 
   return [
     visual_theme,
-    colorGrade[template] ?? colorGrade['karko-navy'],
+    theme.fluxColorGrade,
     'Heavily blurred background with shallow depth of field, bokeh, editorial photography.',
     'Calm professional atmosphere only. No violence, no conflict, no weapons, no injury, no blood, no fire, no destruction, no threatening scenes.',
     'No readable text, no words, no letters, no logos, no recognizable faces.',
@@ -28,16 +28,11 @@ function buildFluxPrompt(visual_theme: string, template: string, accent_color: s
 }
 
 function buildSafetyFallbackPrompt(template: string): string {
-  const colorGrade: Record<string, string> = {
-    'karko-navy':
-      'Color graded in rich midnight navy with refined warm gold highlights, soft contrast, clean premium editorial mood.',
-    'karko-cream':
-      'Color graded in warm cream and champagne tones with soft navy accents, airy premium editorial mood.',
-  };
+  const theme = resolveTheme(template);
 
   return [
     'Calm softly blurred professional workspace, elegant desk surface, subtle laptop silhouette, abstract depth of field, premium editorial photography.',
-    colorGrade[template] ?? colorGrade['karko-navy'],
+    theme.fluxFallbackColorGrade,
     'Peaceful non-threatening composition with gentle studio lighting and minimal shapes.',
     'No people, no faces, no hands, no vehicles, no roads, no conflict, no danger, no weapons, no injury, no destruction, no fire, no blood.',
     'No readable text, no letters, no logos, no brand names.',
@@ -75,22 +70,8 @@ function isSafetyRejection(status: number, errorText: string) {
 function createFallbackBackgroundDataUrl(template: string, isPortrait: boolean) {
   const width = 1024;
   const height = isPortrait ? 1365 : 1024;
-
-  const palette = template === 'karko-cream'
-    ? {
-        start: '#FAF7F2',
-        end: '#F0E8DB',
-        glowA: 'rgba(200, 164, 78, 0.22)',
-        glowB: 'rgba(15, 27, 61, 0.12)',
-        bar: 'rgba(15, 27, 61, 0.08)',
-      }
-    : {
-        start: '#0F1B3D',
-        end: '#08122B',
-        glowA: 'rgba(212, 168, 83, 0.28)',
-        glowB: 'rgba(255, 255, 255, 0.08)',
-        bar: 'rgba(255, 255, 255, 0.06)',
-      };
+  const theme = resolveTheme(template);
+  const palette = theme.fallbackPalette;
 
   const svg = `
     <svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}" fill="none">
@@ -141,9 +122,9 @@ async function requestFluxImage(url: string, prompt: string, width: number, heig
 
 export async function POST(req: NextRequest) {
   try {
-    const { visual_theme, template, accent_color, platform } = await req.json();
+    const { visual_theme, template, platform } = await req.json();
 
-    const prompt = buildFluxPrompt(visual_theme, template, accent_color);
+    const prompt = buildFluxPrompt(visual_theme, template);
 
     // Platform-specific image dimensions (FLUX supports these sizes)
     const isPortrait = platform === 'instagram' || platform === 'both';

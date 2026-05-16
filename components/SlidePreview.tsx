@@ -1,6 +1,8 @@
 'use client';
 
-import { Slide, Template, KARKO_BRAND, KARKO_LOGO_LIGHT, KARKO_LOGO_DARK, PLATFORM_DIMS, SAFE_ZONES } from '@/lib/types';
+import { Slide, Template, PLATFORM_DIMS, SAFE_ZONES } from '@/lib/types';
+import { svgToDataUrl } from '@/lib/brand';
+import { brand } from '@/brand.config';
 
 interface SlidePreviewProps {
   slide: Slide;
@@ -10,28 +12,20 @@ interface SlidePreviewProps {
   scale?: number;
 }
 
-const textColor: Record<Template, { primary: string; muted: string; faint: string }> = {
-  'karko-navy':  { primary: '#FFFFFF', muted: 'rgba(255,255,255,0.82)', faint: 'rgba(255,255,255,0.45)' },
-  'karko-cream': { primary: KARKO_BRAND.navy, muted: KARKO_BRAND.charcoal, faint: 'rgba(15,27,61,0.35)' },
-};
-
-const overlayMap: Record<Template, string> = {
-  'karko-navy':  `linear-gradient(160deg, rgba(15,27,61,0.82) 0%, rgba(15,27,61,0.55) 100%)`,
-  'karko-cream': `linear-gradient(160deg, rgba(250,248,245,0.88) 0%, rgba(250,247,242,0.65) 100%)`,
-};
-
-function KarkoLogo({ template }: { template: Template }) {
-  const svg = template === 'karko-navy' ? KARKO_LOGO_DARK : KARKO_LOGO_LIGHT;
-  const encoded = `data:image/svg+xml;base64,${btoa(svg)}`;
+function BrandLogo({ template }: { template: Template }) {
+  const theme = brand.themes[template];
+  // Dark themes get the light logo (light text on dark); light themes get the dark logo.
+  const isDark = theme.text === '#FFFFFF' || theme.text.toLowerCase() === '#ffffff';
+  const svg = isDark ? brand.logo.light : brand.logo.dark;
   return (
-    <img src={encoded} alt="Karko AI" style={{ width: 450, height: 'auto' }} />
+    <img src={svgToDataUrl(svg)} alt={`${brand.name} logo`} style={{ width: brand.logoSlideWidth, height: 'auto' }} />
   );
 }
 
 export function SlidePreview({ slide, template, platform, totalSlides, scale = 1 }: SlidePreviewProps) {
-  const colors = textColor[template];
-  const accentColor = slide.accent_color || KARKO_BRAND.gold;
-  const ctaFillColor = template === 'karko-navy' ? KARKO_BRAND.gold400 : accentColor;
+  const theme = brand.themes[template];
+  const accentColor = slide.accent_color || theme.accent;
+  const ctaFillColor = theme.ctaFill;
   const dims = PLATFORM_DIMS[platform] || PLATFORM_DIMS.instagram;
   const sz = SAFE_ZONES[platform] || SAFE_ZONES.instagram;
   const W = dims.w;
@@ -65,24 +59,24 @@ export function SlidePreview({ slide, template, platform, totalSlides, scale = 1
         ) : (
           <div style={{
             position: 'absolute', inset: 0,
-            background: template === 'karko-navy' ? KARKO_BRAND.navy : KARKO_BRAND.cream100,
+            background: theme.background,
             display: 'flex', alignItems: 'center', justifyContent: 'center',
           }}>
-            <span style={{ color: template === 'karko-navy' ? '#555' : '#bbb', fontSize: 28 }}>
+            <span style={{ color: theme.textFaint, fontSize: 28 }}>
               {slide.status === 'generating' ? 'Generating...' : ''}
             </span>
           </div>
         )}
 
         {/* Layer 2: Gradient overlay */}
-        <div style={{ position: 'absolute', inset: 0, background: overlayMap[template] }} />
+        <div style={{ position: 'absolute', inset: 0, background: theme.overlay }} />
 
         {/* Layer 3a: Logo — pinned at top */}
         <div style={{
           position: 'absolute', zIndex: 10,
           top: sz.top + 6, left: sz.left,
         }}>
-          <KarkoLogo template={template} />
+          <BrandLogo template={template} />
         </div>
 
         {/* Layer 3b: Content — use the same absolute centering in preview and export */}
@@ -124,7 +118,7 @@ export function SlidePreview({ slide, template, platform, totalSlides, scale = 1
               fontSize: isCover ? (isIg ? 112 : 104) : (isIg ? 96 : 90),
               fontWeight: 800,
               lineHeight: 1.08,
-              color: colors.primary,
+              color: theme.text,
               maxWidth: 880,
             }}>
               {slide.headline}
@@ -133,7 +127,7 @@ export function SlidePreview({ slide, template, platform, totalSlides, scale = 1
             {/* Subtext */}
             <p style={{
               fontSize: isIg ? 44 : 42, lineHeight: 1.45,
-              color: colors.muted,
+              color: theme.textMuted,
               maxWidth: 840,
               margin: 0,
               marginTop: isIg ? 52 : 40,
@@ -173,7 +167,7 @@ export function SlidePreview({ slide, template, platform, totalSlides, scale = 1
                       display: 'block',
                       lineHeight: 1.2,
                       fontSize: 34, fontWeight: 700,
-                      color: template === 'karko-navy' ? KARKO_BRAND.navy : '#FFFFFF',
+                      color: theme.ctaText,
                       letterSpacing: '0.02em',
                     }}>
                       {line.trim()}
@@ -195,24 +189,29 @@ export function SlidePreview({ slide, template, platform, totalSlides, scale = 1
           }}>
           {/* Progress bars — inline-block for html2canvas compatibility */}
           <div style={{ marginBottom: 20, whiteSpace: 'nowrap' }}>
-            {Array.from({ length: totalSlides }, (_, i) => i + 1).map(i => (
-              <div key={i} style={{
-                display: 'inline-block',
-                width: `calc(${100 / totalSlides}% - 6px)`,
-                marginRight: i < totalSlides ? 6 : 0,
-                height: 3, borderRadius: 2,
-                background: i <= slide.id
-                  ? (i === slide.id ? accentColor : (template === 'karko-navy' ? 'rgba(200,164,78,0.35)' : 'rgba(15,27,61,0.2)'))
-                  : (template === 'karko-navy' ? 'rgba(255,255,255,0.12)' : 'rgba(15,27,61,0.08)'),
-              }} />
-            ))}
+            {Array.from({ length: totalSlides }, (_, i) => i + 1).map(i => {
+              const isDarkTheme = theme.text === '#FFFFFF' || theme.text.toLowerCase() === '#ffffff';
+              const completed = isDarkTheme ? 'rgba(200,164,78,0.35)' : 'rgba(15,27,61,0.2)';
+              const upcoming = isDarkTheme ? 'rgba(255,255,255,0.12)' : 'rgba(15,27,61,0.08)';
+              return (
+                <div key={i} style={{
+                  display: 'inline-block',
+                  width: `calc(${100 / totalSlides}% - 6px)`,
+                  marginRight: i < totalSlides ? 6 : 0,
+                  height: 3, borderRadius: 2,
+                  background: i <= slide.id
+                    ? (i === slide.id ? accentColor : completed)
+                    : upcoming,
+                }} />
+              );
+            })}
           </div>
 
           {/* Footer row */}
           <div style={{ position: 'relative' }}>
             <span style={{
               fontSize: 22, fontWeight: 600,
-              color: colors.faint, letterSpacing: '0.05em',
+              color: theme.textFaint, letterSpacing: '0.05em',
             }}>
               {String(slide.id).padStart(2, '0')} / {String(totalSlides).padStart(2, '0')}
             </span>

@@ -1,7 +1,9 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
-import { CarouselConfig, Slide, Template, KARKO_BRAND, KARKO_LOGO_LIGHT, KARKO_LOGO_DARK, PLATFORM_DIMS, MAX_SLIDES, DEFAULT_SLIDES } from '@/lib/types';
+import { CarouselConfig, Slide, Template, PLATFORM_DIMS, MAX_SLIDES, DEFAULT_SLIDES } from '@/lib/types';
+import { svgToDataUrl } from '@/lib/brand';
+import { brand } from '@/brand.config';
 import { SlidePreview } from '@/components/SlidePreview';
 import { exportCarousel } from '@/lib/export';
 
@@ -51,15 +53,19 @@ const SLIDE_SCALE: Record<string, number> = {
 };
 
 function DashboardLogo() {
-  const svg = KARKO_LOGO_LIGHT;
-  const encoded = `data:image/svg+xml;base64,${btoa(svg)}`;
-  return <img src={encoded} alt="Karko AI" style={{ width: 160, height: 'auto' }} />;
+  return (
+    <img
+      src={svgToDataUrl(brand.logo.light)}
+      alt={brand.name}
+      style={{ width: brand.logoDashboardWidth, height: 'auto' }}
+    />
+  );
 }
 
 export default function Home() {
   const [step, setStep] = useState<Step>('input');
   const [content, setContent] = useState('');
-  const [template, setTemplate] = useState<Template>('karko-navy');
+  const [template, setTemplate] = useState<Template>(brand.defaultTheme);
   const [platform, setPlatform] = useState<'instagram' | 'linkedin' | 'both'>('instagram');
   const [slideCount, setSlideCount] = useState(5);
   const [carousel, setCarousel] = useState<CarouselConfig | null>(null);
@@ -71,6 +77,10 @@ export default function Home() {
   const abortRef = useRef(false);
   const lastBgRequestStartedAtRef = useRef(0);
   const maxSlides = MAX_SLIDES[platform] || 5;
+
+  const primaryTheme = brand.themes.primary;
+  const activeTheme = brand.themes[template];
+  const ui = brand.ui;
 
   async function waitForFluxRequestSlot() {
     const now = Date.now();
@@ -164,7 +174,7 @@ export default function Home() {
           template,
           platform,
           slideCount,
-          brand_color: template === 'karko-navy' ? KARKO_BRAND.gold : KARKO_BRAND.navy,
+          brand_color: activeTheme.accent,
         }),
       });
 
@@ -253,20 +263,20 @@ export default function Home() {
   }
 
   return (
-    <main style={{ minHeight: '100vh', background: KARKO_BRAND.cream, color: KARKO_BRAND.charcoal }}>
+    <main style={{ minHeight: '100vh', background: ui.pageBackground, color: ui.text }}>
       {/* Header */}
       <header style={{
-        borderBottom: `1px solid rgba(15,27,61,0.08)`,
+        borderBottom: `1px solid ${ui.border}`,
         padding: '16px 24px',
-        background: '#FFFFFF',
+        background: ui.headerBackground,
       }}>
         <div style={{ maxWidth: 1280, margin: '0 auto', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
             <DashboardLogo />
             <span style={{
               fontSize: 12,
-              color: KARKO_BRAND.warmGray,
-              borderLeft: `1px solid rgba(15,27,61,0.12)`,
+              color: ui.textMuted,
+              borderLeft: `1px solid ${ui.border}`,
               paddingLeft: 16,
               fontWeight: 500,
             }}>
@@ -281,11 +291,11 @@ export default function Home() {
         {/* ── Input Step ── */}
         {step === 'input' && (
           <div style={{ maxWidth: 960, margin: '0 auto' }}>
-            <h2 style={{ fontSize: 28, fontWeight: 700, marginBottom: 8, color: KARKO_BRAND.navy }}>
+            <h2 style={{ fontSize: 28, fontWeight: 700, marginBottom: 8, color: primaryTheme.background }}>
               Create a Carousel
             </h2>
-            <p style={{ color: KARKO_BRAND.warmGray, marginBottom: 28, fontSize: 14 }}>
-              Paste your content and we'll turn it into polished carousel slides with Karko AI branding.
+            <p style={{ color: ui.textMuted, marginBottom: 28, fontSize: 14 }}>
+              Paste your content and we'll turn it into polished carousel slides with {brand.name} branding.
             </p>
 
             {error && (
@@ -301,7 +311,7 @@ export default function Home() {
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 320px', gap: 24, alignItems: 'start' }}>
               {/* Left: Content textarea */}
               <div>
-                <label style={{ display: 'block', fontSize: 13, fontWeight: 600, color: KARKO_BRAND.navy, marginBottom: 8 }}>
+                <label style={{ display: 'block', fontSize: 13, fontWeight: 600, color: primaryTheme.background, marginBottom: 8 }}>
                   Your Content
                 </label>
                 <textarea
@@ -311,12 +321,12 @@ export default function Home() {
                   rows={14}
                   style={{
                     width: '100%',
-                    background: '#FFFFFF',
-                    border: '1px solid rgba(15,27,61,0.15)',
+                    background: ui.headerBackground,
+                    border: `1px solid ${ui.border}`,
                     borderRadius: 10,
                     padding: '12px 16px',
                     fontSize: 14,
-                    color: KARKO_BRAND.charcoal,
+                    color: ui.text,
                     resize: 'vertical',
                     outline: 'none',
                     fontFamily: 'inherit',
@@ -327,8 +337,8 @@ export default function Home() {
 
               {/* Right: Controls panel */}
               <div style={{
-                background: '#FFFFFF',
-                border: '1px solid rgba(15,27,61,0.10)',
+                background: ui.headerBackground,
+                border: `1px solid ${ui.border}`,
                 borderRadius: 12,
                 padding: 20,
                 display: 'flex',
@@ -337,67 +347,47 @@ export default function Home() {
               }}>
                 {/* Theme */}
                 <div>
-                  <label style={{ display: 'block', fontSize: 13, fontWeight: 600, color: KARKO_BRAND.navy, marginBottom: 10 }}>
+                  <label style={{ display: 'block', fontSize: 13, fontWeight: 600, color: primaryTheme.background, marginBottom: 10 }}>
                     Theme
                   </label>
                   <div style={{ display: 'flex', gap: 10 }}>
-                    {/* Navy theme card */}
-                    <button
-                      onClick={() => setTemplate('karko-navy')}
-                      style={{
-                        flex: 1,
-                        padding: '12px 10px',
-                        borderRadius: 10,
-                        border: template === 'karko-navy'
-                          ? `2px solid ${KARKO_BRAND.gold}`
-                          : '2px solid rgba(15,27,61,0.12)',
-                        background: template === 'karko-navy' ? KARKO_BRAND.navy : '#FAFAFA',
-                        color: template === 'karko-navy' ? '#FFFFFF' : KARKO_BRAND.charcoal,
-                        cursor: 'pointer',
-                        fontSize: 13,
-                        fontWeight: 600,
-                        textAlign: 'center',
-                        transition: 'all 0.2s',
-                      }}
-                    >
-                      <div style={{
-                        width: 22, height: 22, borderRadius: 6, margin: '0 auto 8px',
-                        background: `linear-gradient(135deg, ${KARKO_BRAND.navy} 50%, ${KARKO_BRAND.gold} 50%)`,
-                      }} />
-                      Navy
-                    </button>
-
-                    {/* Cream theme card */}
-                    <button
-                      onClick={() => setTemplate('karko-cream')}
-                      style={{
-                        flex: 1,
-                        padding: '12px 10px',
-                        borderRadius: 10,
-                        border: template === 'karko-cream'
-                          ? `2px solid ${KARKO_BRAND.gold}`
-                          : '2px solid rgba(15,27,61,0.12)',
-                        background: template === 'karko-cream' ? KARKO_BRAND.cream100 : '#FAFAFA',
-                        color: KARKO_BRAND.charcoal,
-                        cursor: 'pointer',
-                        fontSize: 13,
-                        fontWeight: 600,
-                        textAlign: 'center',
-                        transition: 'all 0.2s',
-                      }}
-                    >
-                      <div style={{
-                        width: 22, height: 22, borderRadius: 6, margin: '0 auto 8px',
-                        background: `linear-gradient(135deg, ${KARKO_BRAND.cream} 50%, ${KARKO_BRAND.navy} 50%)`,
-                      }} />
-                      Cream
-                    </button>
+                    {(['primary', 'secondary'] as Template[]).map(themeKey => {
+                      const t = brand.themes[themeKey];
+                      const selected = template === themeKey;
+                      return (
+                        <button
+                          key={themeKey}
+                          onClick={() => setTemplate(themeKey)}
+                          style={{
+                            flex: 1,
+                            padding: '12px 10px',
+                            borderRadius: 10,
+                            border: selected
+                              ? `2px solid ${primaryTheme.accent}`
+                              : `2px solid ${ui.border}`,
+                            background: selected ? t.background : ui.inputBackground,
+                            color: selected ? t.text : ui.text,
+                            cursor: 'pointer',
+                            fontSize: 13,
+                            fontWeight: 600,
+                            textAlign: 'center',
+                            transition: 'all 0.2s',
+                          }}
+                        >
+                          <div style={{
+                            width: 22, height: 22, borderRadius: 6, margin: '0 auto 8px',
+                            background: `linear-gradient(135deg, ${t.background} 50%, ${t.accent} 50%)`,
+                          }} />
+                          {t.label}
+                        </button>
+                      );
+                    })}
                   </div>
                 </div>
 
                 {/* Platform */}
                 <div>
-                  <label style={{ display: 'block', fontSize: 13, fontWeight: 600, color: KARKO_BRAND.navy, marginBottom: 10 }}>
+                  <label style={{ display: 'block', fontSize: 13, fontWeight: 600, color: primaryTheme.background, marginBottom: 10 }}>
                     Platform
                   </label>
                   <select
@@ -405,12 +395,12 @@ export default function Home() {
                     onChange={e => handlePlatformChange(e.target.value as typeof platform)}
                     style={{
                       width: '100%',
-                      background: '#FAFAFA',
-                      border: '1px solid rgba(15,27,61,0.15)',
+                      background: ui.inputBackground,
+                      border: `1px solid ${ui.border}`,
                       borderRadius: 8,
                       padding: '10px 12px',
                       fontSize: 14,
-                      color: KARKO_BRAND.charcoal,
+                      color: ui.text,
                       outline: 'none',
                     }}
                   >
@@ -422,38 +412,37 @@ export default function Home() {
 
                 {/* Slide count */}
                 <div>
-                  <label style={{ display: 'block', fontSize: 13, fontWeight: 600, color: KARKO_BRAND.navy, marginBottom: 10 }}>
+                  <label style={{ display: 'block', fontSize: 13, fontWeight: 600, color: primaryTheme.background, marginBottom: 10 }}>
                     Number of Slides
                   </label>
                   <div style={{ display: 'flex', gap: 6 }}>
-                    {Array.from({ length: maxSlides }, (_, i) => i + 1).map(n => (
-                      <button
-                        key={n}
-                        onClick={() => setSlideCount(n)}
-                        style={{
-                          flex: 1,
-                          padding: '9px 0',
-                          borderRadius: 8,
-                          border: slideCount === n
-                            ? `2px solid ${KARKO_BRAND.gold}`
-                            : '2px solid rgba(15,27,61,0.12)',
-                          background: slideCount === n
-                            ? (template === 'karko-navy' ? KARKO_BRAND.navy : KARKO_BRAND.cream100)
-                            : '#FAFAFA',
-                          color: slideCount === n
-                            ? (template === 'karko-navy' ? '#FFFFFF' : KARKO_BRAND.navy)
-                            : KARKO_BRAND.charcoal,
-                          cursor: 'pointer',
-                          fontSize: 13,
-                          fontWeight: 600,
-                          transition: 'all 0.2s',
-                        }}
-                      >
-                        {n}
-                      </button>
-                    ))}
+                    {Array.from({ length: maxSlides }, (_, i) => i + 1).map(n => {
+                      const selected = slideCount === n;
+                      return (
+                        <button
+                          key={n}
+                          onClick={() => setSlideCount(n)}
+                          style={{
+                            flex: 1,
+                            padding: '9px 0',
+                            borderRadius: 8,
+                            border: selected
+                              ? `2px solid ${primaryTheme.accent}`
+                              : `2px solid ${ui.border}`,
+                            background: selected ? activeTheme.background : ui.inputBackground,
+                            color: selected ? activeTheme.text : ui.text,
+                            cursor: 'pointer',
+                            fontSize: 13,
+                            fontWeight: 600,
+                            transition: 'all 0.2s',
+                          }}
+                        >
+                          {n}
+                        </button>
+                      );
+                    })}
                   </div>
-                  <p style={{ fontSize: 11, color: KARKO_BRAND.warmGray, marginTop: 6 }}>
+                  <p style={{ fontSize: 11, color: ui.textMuted, marginTop: 6 }}>
                     Max {MAX_SLIDES.instagram} for Instagram, {MAX_SLIDES.linkedin} for LinkedIn
                   </p>
                 </div>
@@ -466,8 +455,8 @@ export default function Home() {
                     width: '100%',
                     background: !content.trim()
                       ? 'rgba(15,27,61,0.3)'
-                      : `linear-gradient(135deg, ${KARKO_BRAND.gold400}, ${KARKO_BRAND.gold500})`,
-                    color: !content.trim() ? 'rgba(255,255,255,0.6)' : KARKO_BRAND.navy,
+                      : `linear-gradient(135deg, ${primaryTheme.accent}, ${primaryTheme.accentBright})`,
+                    color: !content.trim() ? 'rgba(255,255,255,0.6)' : primaryTheme.ctaText,
                     fontWeight: 700,
                     padding: '14px 0',
                     borderRadius: 10,
@@ -490,12 +479,12 @@ export default function Home() {
           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: 256, gap: 16 }}>
             <div style={{
               width: 36, height: 36,
-              border: `3px solid ${KARKO_BRAND.gold}`,
+              border: `3px solid ${primaryTheme.accent}`,
               borderTopColor: 'transparent',
               borderRadius: '50%',
               animation: 'spin 0.8s linear infinite',
             }} />
-            <p style={{ color: KARKO_BRAND.warmGray, fontSize: 14 }}>Structuring your content into {slideCount} slide{slideCount !== 1 ? 's' : ''}...</p>
+            <p style={{ color: ui.textMuted, fontSize: 14 }}>Structuring your content into {slideCount} slide{slideCount !== 1 ? 's' : ''}...</p>
             <style>{`@keyframes spin { to { transform: rotate(360deg) } }`}</style>
           </div>
         )}
@@ -506,17 +495,17 @@ export default function Home() {
             {step === 'generating' && (
               <div style={{ marginBottom: 32 }}>
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
-                  <p style={{ fontSize: 14, color: KARKO_BRAND.charcoal }}>Generating backgrounds...</p>
+                  <p style={{ fontSize: 14, color: ui.text }}>Generating backgrounds...</p>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                    <p style={{ fontSize: 14, color: KARKO_BRAND.warmGray }}>{progress} / {carousel.slides.length}</p>
+                    <p style={{ fontSize: 14, color: ui.textMuted }}>{progress} / {carousel.slides.length}</p>
                     <button
                       onClick={handleStartOver}
                       style={{
                         fontSize: 12,
-                        color: KARKO_BRAND.navy600,
+                        color: primaryTheme.surface,
                         padding: '4px 10px',
                         borderRadius: 6,
-                        border: `1px solid rgba(15,27,61,0.15)`,
+                        border: `1px solid ${ui.border}`,
                         background: 'transparent',
                         cursor: 'pointer',
                         fontWeight: 500,
@@ -529,7 +518,7 @@ export default function Home() {
                 <div style={{ height: 6, background: 'rgba(15,27,61,0.08)', borderRadius: 4, overflow: 'hidden' }}>
                   <div style={{
                     height: '100%',
-                    background: `linear-gradient(90deg, ${KARKO_BRAND.gold400}, ${KARKO_BRAND.gold})`,
+                    background: `linear-gradient(90deg, ${primaryTheme.accent}, ${primaryTheme.accentBright})`,
                     borderRadius: 4,
                     transition: 'width 0.5s ease',
                     width: `${(progress / carousel.slides.length) * 100}%`,
@@ -542,9 +531,9 @@ export default function Home() {
               <div style={{ marginBottom: 32 }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 12 }}>
                   <div style={{ flex: 1 }}>
-                    <h2 style={{ fontWeight: 600, fontSize: 18, color: KARKO_BRAND.navy }}>{carousel.topic}</h2>
-                    <p style={{ fontSize: 12, color: KARKO_BRAND.warmGray, marginTop: 4 }}>
-                      {carousel.template === 'karko-navy' ? 'Navy' : 'Cream'} theme
+                    <h2 style={{ fontWeight: 600, fontSize: 18, color: primaryTheme.background }}>{carousel.topic}</h2>
+                    <p style={{ fontSize: 12, color: ui.textMuted, marginTop: 4 }}>
+                      {brand.themes[carousel.template]?.label ?? carousel.template} theme
                       {' '} {carousel.platform} {' '} {carousel.slides.length} slides
                     </p>
                   </div>
@@ -554,10 +543,10 @@ export default function Home() {
                     onClick={handleStartOver}
                     style={{
                       fontSize: 13,
-                      color: KARKO_BRAND.navy600,
+                      color: primaryTheme.surface,
                       padding: '9px 16px',
                       borderRadius: 8,
-                      border: `1px solid rgba(15,27,61,0.15)`,
+                      border: `1px solid ${ui.border}`,
                       background: 'transparent',
                       cursor: 'pointer',
                       fontWeight: 500,
@@ -566,7 +555,7 @@ export default function Home() {
                     Start Over
                   </button>
                   <div style={{ flex: 1, display: 'flex', alignItems: 'center', gap: 8 }}>
-                    <label style={{ fontSize: 12, color: KARKO_BRAND.warmGray, fontWeight: 500, whiteSpace: 'nowrap' }}>
+                    <label style={{ fontSize: 12, color: ui.textMuted, fontWeight: 500, whiteSpace: 'nowrap' }}>
                       Export as:
                     </label>
                     <input
@@ -577,12 +566,12 @@ export default function Home() {
                       style={{
                         flex: 1,
                         maxWidth: 240,
-                        background: '#FFFFFF',
-                        border: '1px solid rgba(15,27,61,0.15)',
+                        background: ui.headerBackground,
+                        border: `1px solid ${ui.border}`,
                         borderRadius: 8,
                         padding: '8px 12px',
                         fontSize: 13,
-                        color: KARKO_BRAND.charcoal,
+                        color: ui.text,
                         outline: 'none',
                         fontFamily: 'inherit',
                       }}
@@ -593,8 +582,8 @@ export default function Home() {
                     disabled={exporting}
                     style={{
                       display: 'flex', alignItems: 'center', gap: 8,
-                      background: `linear-gradient(135deg, ${KARKO_BRAND.gold400}, ${KARKO_BRAND.gold500})`,
-                      color: KARKO_BRAND.navy,
+                      background: `linear-gradient(135deg, ${primaryTheme.accent}, ${primaryTheme.accentBright})`,
+                      color: primaryTheme.ctaText,
                       fontWeight: 700,
                       padding: '10px 20px',
                       borderRadius: 8,
@@ -633,7 +622,7 @@ export default function Home() {
                     marginTop: 8, display: 'flex', alignItems: 'center', justifyContent: 'space-between',
                     width: dims.w * previewScale,
                   }}>
-                    <span style={{ fontSize: 12, color: KARKO_BRAND.warmGray }}>Slide {slide.id}</span>
+                    <span style={{ fontSize: 12, color: ui.textMuted }}>Slide {slide.id}</span>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                       {slide.status === 'error' && (
                         <span
@@ -649,7 +638,7 @@ export default function Home() {
                           disabled={regenerating !== null}
                           style={{
                             fontSize: 12,
-                            color: KARKO_BRAND.navy600,
+                            color: primaryTheme.surface,
                             background: 'transparent',
                             border: 'none',
                             cursor: regenerating !== null ? 'not-allowed' : 'pointer',
