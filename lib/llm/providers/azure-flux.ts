@@ -39,39 +39,30 @@ function isSafetyRejection(status: number, errorText: string) {
   return status === 400 && SAFETY_REJECTION_PATTERN.test(errorText);
 }
 
-function buildSafetyFallbackPrompt(template: string | undefined): string {
-  const colorGrade: Record<string, string> = {
-    'karko-navy':
-      'Color graded in rich midnight navy with refined warm gold highlights, soft contrast, clean premium editorial mood.',
-    'karko-cream':
-      'Color graded in warm cream and champagne tones with soft navy accents, airy premium editorial mood.',
-  };
-
+function buildSafetyFallbackPrompt(_template: string | undefined): string {
+  // Brand-agnostic neutral retry prompt. The route owns the brand-aware
+  // SVG fallback when this retry also fails, so the colour grading here
+  // just needs to be safe and generic.
   return [
     'Calm softly blurred professional workspace, elegant desk surface, subtle laptop silhouette, abstract depth of field, premium editorial photography.',
-    colorGrade[template ?? ''] ?? colorGrade['karko-navy'],
+    'Soft neutral colour grading, gentle contrast, clean premium editorial mood.',
     'Peaceful non-threatening composition with gentle studio lighting and minimal shapes.',
     'No people, no faces, no hands, no vehicles, no roads, no conflict, no danger, no weapons, no injury, no destruction, no fire, no blood.',
     'No readable text, no letters, no logos, no brand names.',
   ].join(' ');
 }
 
-function createFallbackBackgroundDataUrl(template: string | undefined, width: number, height: number): string {
-  const palette = template === 'karko-cream'
-    ? {
-        start: '#FAF7F2',
-        end: '#F0E8DB',
-        glowA: 'rgba(200, 164, 78, 0.22)',
-        glowB: 'rgba(15, 27, 61, 0.12)',
-        bar: 'rgba(15, 27, 61, 0.08)',
-      }
-    : {
-        start: '#0F1B3D',
-        end: '#08122B',
-        glowA: 'rgba(212, 168, 83, 0.28)',
-        glowB: 'rgba(255, 255, 255, 0.08)',
-        bar: 'rgba(255, 255, 255, 0.06)',
-      };
+function createFallbackBackgroundDataUrl(_template: string | undefined, width: number, height: number): string {
+  // Neutral charcoal/grey fallback. The API route emits its own brand-aware
+  // SVG fallback when safetyFiltered is true, so this only surfaces if a
+  // caller uses the provider directly without orchestration.
+  const palette = {
+    start: '#1F2530',
+    end: '#10141C',
+    glowA: 'rgba(255, 255, 255, 0.10)',
+    glowB: 'rgba(255, 255, 255, 0.06)',
+    bar: 'rgba(255, 255, 255, 0.05)',
+  };
 
   const svg = `
     <svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}" fill="none">

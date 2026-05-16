@@ -1,5 +1,5 @@
 {
-  "name": "carousel-forge",
+  "name": "swipekit",
   "version": "0.1.0",
   "private": true,
   "description": "AI-powered LinkedIn and Instagram carousel generator. Bring your own brand.",
@@ -14,7 +14,7 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/wasimjalali/carousel-forge.git"
+    "url": "git+https://github.com/wasimjalali/swipekit.git"
   },
   "scripts": {
     "dev": "next dev",

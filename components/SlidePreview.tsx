@@ -14,9 +14,9 @@ interface SlidePreviewProps {
 
 function BrandLogo({ template }: { template: Template }) {
   const theme = brand.themes[template];
-  // Dark themes get the light logo (light text on dark); light themes get the dark logo.
-  const isDark = theme.text === '#FFFFFF' || theme.text.toLowerCase() === '#ffffff';
-  const svg = isDark ? brand.logo.light : brand.logo.dark;
+  // `logo.light` is designed for light surfaces (dark wordmark); `logo.dark` for dark surfaces (light wordmark).
+  const isDarkSurface = theme.text === '#FFFFFF' || theme.text.toLowerCase() === '#ffffff';
+  const svg = isDarkSurface ? brand.logo.dark : brand.logo.light;
   return (
     <img src={svgToDataUrl(svg)} alt={`${brand.name} logo`} style={{ width: brand.logoSlideWidth, height: 'auto' }} />
   );

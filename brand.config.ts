@@ -27,13 +27,16 @@ const CREAM100 = '#FAF7F2';
 const CHARCOAL = '#2D3748';
 const WARM_GRAY = '#6B7280';
 
-const LOGO_LIGHT = `<svg width="220" height="40" viewBox="0 0 192 40" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Carousel Generator"><rect width="40" height="40" rx="10" fill="${NAVY}"/><text x="20" y="29" font-family="'Plus Jakarta Sans', sans-serif" font-weight="800" font-size="24" fill="${GOLD_BRIGHT}" text-anchor="middle">C</text><text x="50" y="32" font-family="'Plus Jakarta Sans', sans-serif" font-weight="800" font-size="34" fill="${NAVY}" letter-spacing="-1">Carousel</text></svg>`;
+// Default "Swipekit" sample logo. Replace with your own brand mark + wordmark.
+// `LOGO_LIGHT` renders on light surfaces (dark wordmark).
+// `LOGO_DARK`  renders on dark surfaces  (light wordmark).
+const LOGO_LIGHT = `<svg width="220" height="40" viewBox="0 0 220 40" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="swipekit"><rect width="40" height="40" rx="10" fill="${NAVY}"/><path d="M15 11 L26 20 L15 29" stroke="${GOLD_BRIGHT}" stroke-width="3.6" stroke-linecap="round" stroke-linejoin="round" fill="none"/><text x="52" y="30" font-family="'Plus Jakarta Sans', sans-serif" font-weight="800" font-size="28" fill="${NAVY}" letter-spacing="-0.6">swipekit</text></svg>`;
 
-const LOGO_DARK = `<svg width="220" height="40" viewBox="0 0 192 40" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Carousel Generator"><rect width="40" height="40" rx="10" fill="${GOLD}"/><text x="20" y="29" font-family="'Plus Jakarta Sans', sans-serif" font-weight="800" font-size="24" fill="${NAVY}" text-anchor="middle">C</text><text x="50" y="32" font-family="'Plus Jakarta Sans', sans-serif" font-weight="800" font-size="34" fill="#FFFFFF" letter-spacing="-1">Carousel</text></svg>`;
+const LOGO_DARK = `<svg width="220" height="40" viewBox="0 0 220 40" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="swipekit"><rect width="40" height="40" rx="10" fill="${GOLD}"/><path d="M15 11 L26 20 L15 29" stroke="${NAVY}" stroke-width="3.6" stroke-linecap="round" stroke-linejoin="round" fill="none"/><text x="52" y="30" font-family="'Plus Jakarta Sans', sans-serif" font-weight="800" font-size="28" fill="#FFFFFF" letter-spacing="-0.6">swipekit</text></svg>`;
 
 export const brand: BrandConfig = {
-  name: 'Your Brand',
-  url: 'yourbrand.com',
+  name: 'Swipekit',
+  url: 'github.com/swipekit',
   domain: 'general-purpose content',
   tone: 'clear, confident, and concise',
 

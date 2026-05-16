@@ -1,13 +1,13 @@
 # Contributing
 
-Thanks for your interest in improving Carousel Forge. This document covers the
+Thanks for your interest in improving Swipekit. This document covers the
 basics for getting set up and the small set of conventions we follow.
 
 ## Dev setup
 
 ```bash
 git clone <your-fork-url>
-cd carousel-forge
+cd swipekit
 npm install
 cp .env.example .env.local
 npm run dev
@@ -28,11 +28,13 @@ contract and a worked example. The short version:
    to your adapter.
 3. Document the env vars your adapter reads in `.env.example`.
 
-## Adding a theme
+## Customising themes
 
-Themes live in `brand.config.ts`. Each theme is an entry under `themes` with
-`bg`, `accent`, and `text` colors plus a `name`. Add a new entry, then it
-becomes selectable in the UI. No code changes needed.
+Swipekit ships with two fixed theme keys — `primary` (dark) and `secondary`
+(light) — which map to the UI's theme picker. You can change everything
+*inside* each theme by editing `brand.config.ts`: colours, overlay gradient,
+CTA pill fill, FLUX colour-grading phrases, and the SVG fallback palette.
+See `lib/brand.ts` for the full `BrandConfig` type.
 
 ## Code style
 

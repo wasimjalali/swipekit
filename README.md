@@ -1,6 +1,8 @@
-# Carousel Forge
+# Swipekit
 
-AI-powered LinkedIn & Instagram carousel generator. Bring your own brand.
+> AI-powered LinkedIn & Instagram carousel generator. Bring your own brand.
+
+Paste a script, pick a theme, and Swipekit turns it into a polished carousel — typed slide objects, AI-generated backgrounds in your palette, and a one-click PDF or PNG export. Designed to be forked: swap the brand config, pick your LLM and image provider, ship.
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](./LICENSE)
 [![Next.js](https://img.shields.io/badge/Next.js-16-black?logo=nextdotjs)](https://nextjs.org)
@@ -21,13 +23,13 @@ AI-powered LinkedIn & Instagram carousel generator. Bring your own brand.
 
 ## Why this exists
 
-Most carousel tools lock you into their templates, their brand opinions, and their pricing. Carousel Forge does the opposite — you fork it, drop in your brand config, point it at any LLM and image provider you want, and own the entire pipeline. No vendor lock-in on the visuals or the models.
+Most carousel tools lock you into their templates, their brand opinions, and their pricing. Swipekit does the opposite — you fork it, drop in your brand config, point it at any LLM and image provider you want, and own the entire pipeline. No vendor lock-in on the visuals or the models.
 
 ## Quickstart
 
 ```bash
 git clone <your-fork-url>
-cd carousel-forge
+cd swipekit
 npm install
 cp .env.example .env.local
 npm run dev
